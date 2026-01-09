@@ -38,7 +38,7 @@ export function Login() {
             UBS Watchdog
           </h1>
           <p className="text-center text-[#666666] mb-8">
-            Sistema de Monitoramento de Transações & Compliance
+            Sistema de Monitoramento de Transações & Compliance.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -92,7 +92,7 @@ export function Login() {
 
           <div className="mt-6 p-4 bg-[#f5f5f5] rounded-lg">
             <p className="text-xs text-[#666666] text-center">
-              Grupo 3
+              Desenvolvido por: Grupo 3
             </p>
           </div>
         </div>
