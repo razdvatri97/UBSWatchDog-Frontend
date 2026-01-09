@@ -21,9 +21,18 @@ interface AppState {
 }
 
 // Reusable fetch function
-const fetchFromAPI = async (endpoint: string) => {
+const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) => {
+  const defaultOptions: RequestInit = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  const mergedOptions = { ...defaultOptions, ...options };
+
   try {
-    const response = await fetch(`${API_BASE}/${endpoint}`);
+    const response = await fetch(`${API_BASE}/${endpoint}`, mergedOptions);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -49,21 +58,12 @@ export const useStore = create<AppState>((set, get) => ({
     }
 
     // HTTP request to backend endpoint
-    try {
-      const response = await fetch(`${API_BASE}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!response.ok) {
-        return false;
-      }
-
-      const data = await response.json();
-      
+    const data = await fetchFromAPI('login', { 
+      method: 'POST', 
+      body: JSON.stringify({ username, password }) 
+    });
+    
+    if (data) {
       // Update user state with response data
       set({ 
         user: { 
@@ -73,10 +73,8 @@ export const useStore = create<AppState>((set, get) => ({
       });
       
       console.log('Login successful:', data.username);
-
       return true;
-    } catch (error) {
-      console.error('Login error:', error);
+    } else {
       return false;
     }
   },
