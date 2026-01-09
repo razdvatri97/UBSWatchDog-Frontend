@@ -20,7 +20,6 @@ interface AppState {
   fetchAllData: () => Promise<void>;
 }
 
-// Reusable fetch function
 const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) => {
   const defaultOptions: RequestInit = {
     method: 'GET',
@@ -57,14 +56,12 @@ export const useStore = create<AppState>((set, get) => ({
       return true;
     }
 
-    // HTTP request to backend endpoint
     const data = await fetchFromAPI('login', { 
       method: 'POST', 
       body: JSON.stringify({ username, password }) 
     });
     
     if (data) {
-      // Update user state with response data
       set({ 
         user: { 
           username: data.username, 
