@@ -14,184 +14,31 @@ interface AppState {
   addClient: (client: Omit<Client, 'id' | 'dataCadastro'>) => void;
   addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
   updateAlertStatus: (id: string, status: Alert['status']) => void;
+  fetchClients: () => Promise<void>;
+  fetchTransactions: () => Promise<void>;
+  fetchAlerts: () => Promise<void>;
+  fetchAllData: () => Promise<void>;
 }
 
-// Mock data for demonstration purposes
-const mockClients: Client[] = [
-  {
-    id: '1',
-    nome: 'João Silva',
-    pais: 'Brasil',
-    nivelRisco: 'Baixo',
-    kycStatus: 'Aprovado',
-    dataCadastro: '2024-01-15',
-  },
-  {
-    id: '2',
-    nome: 'Maria Santos',
-    pais: 'Portugal',
-    nivelRisco: 'Médio',
-    kycStatus: 'Aprovado',
-    dataCadastro: '2024-02-20',
-  },
-  {
-    id: '3',
-    nome: 'Peter Mueller',
-    pais: 'Alemanha',
-    nivelRisco: 'Baixo',
-    kycStatus: 'Aprovado',
-    dataCadastro: '2024-03-10',
-  },
-  {
-    id: '4',
-    nome: 'Carlos Rodriguez',
-    pais: 'Panamá',
-    nivelRisco: 'Alto',
-    kycStatus: 'Pendente',
-    dataCadastro: '2024-11-05',
-  },
-  {
-    id: '5',
-    nome: 'Anna Kowalski',
-    pais: 'Polônia',
-    nivelRisco: 'Médio',
-    kycStatus: 'Aprovado',
-    dataCadastro: '2024-09-12',
-  },
-];
+// Reusable fetch function
+const fetchFromAPI = async (endpoint: string) => {
+  try {
+    const response = await fetch(`${API_BASE}/${endpoint}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error);
+    return null;
+  }
+};
 
-const mockTransactions: Transaction[] = [
-  {
-    id: '1',
-    clienteId: '1',
-    tipo: 'Depósito',
-    valor: 15000,
-    moeda: 'BRL',
-    contraparte: 'Conta Salário',
-    dataHora: '2025-01-05T10:30:00',
-  },
-  {
-    id: '2',
-    clienteId: '1',
-    tipo: 'Transferência',
-    valor: 8000,
-    moeda: 'BRL',
-    contraparte: 'Maria Santos',
-    dataHora: '2025-01-06T14:20:00',
-  },
-  {
-    id: '3',
-    clienteId: '2',
-    tipo: 'Saque',
-    valor: 5000,
-    moeda: 'EUR',
-    contraparte: 'ATM Lisboa',
-    dataHora: '2025-01-05T16:45:00',
-  },
-  {
-    id: '4',
-    clienteId: '4',
-    tipo: 'Transferência',
-    valor: 45000,
-    moeda: 'USD',
-    contraparte: 'Offshore Corp',
-    dataHora: '2025-01-06T09:15:00',
-  },
-  {
-    id: '5',
-    clienteId: '4',
-    tipo: 'Transferência',
-    valor: 38000,
-    moeda: 'USD',
-    contraparte: 'Foreign Account',
-    dataHora: '2025-01-06T11:30:00',
-  },
-  {
-    id: '6',
-    clienteId: '3',
-    tipo: 'Depósito',
-    valor: 12000,
-    moeda: 'EUR',
-    contraparte: 'Salário',
-    dataHora: '2025-01-04T08:00:00',
-  },
-  {
-    id: '7',
-    clienteId: '1',
-    tipo: 'Transferência',
-    valor: 3500,
-    moeda: 'BRL',
-    contraparte: 'Fornecedor A',
-    dataHora: '2025-01-07T10:00:00',
-  },
-  {
-    id: '8',
-    clienteId: '1',
-    tipo: 'Transferência',
-    valor: 3200,
-    moeda: 'BRL',
-    contraparte: 'Fornecedor B',
-    dataHora: '2025-01-07T11:00:00',
-  },
-  {
-    id: '9',
-    clienteId: '1',
-    tipo: 'Transferência',
-    valor: 3800,
-    moeda: 'BRL',
-    contraparte: 'Fornecedor C',
-    dataHora: '2025-01-07T15:00:00',
-  },
-];
-
-const mockAlerts: Alert[] = [
-  {
-    id: '1',
-    clienteId: '4',
-    transacaoId: '4',
-    regra: 'Transferência Internacional para País de Risco',
-    severidade: 'Alta',
-    status: 'Novo',
-    dataHora: '2025-01-06T09:20:00',
-    descricao: 'Transferência de USD 45.000 para país de alto risco (Panamá)',
-  },
-  {
-    id: '2',
-    clienteId: '4',
-    transacaoId: '5',
-    regra: 'Limite Diário Excedido',
-    severidade: 'Alta',
-    status: 'Novo',
-    dataHora: '2025-01-06T11:35:00',
-    descricao: 'Total de transações diárias ultrapassou USD 50.000',
-  },
-  {
-    id: '3',
-    clienteId: '1',
-    transacaoId: '7',
-    regra: 'Possível Fracionamento',
-    severidade: 'Média',
-    status: 'Em Análise',
-    dataHora: '2025-01-07T15:05:00',
-    descricao: 'Múltiplas transferências pequenas detectadas no mesmo dia (3 transações)',
-  },
-  {
-    id: '4',
-    clienteId: '2',
-    transacaoId: '3',
-    regra: 'Limite Diário Excedido',
-    severidade: 'Baixa',
-    status: 'Resolvido',
-    dataHora: '2025-01-05T16:50:00',
-    descricao: 'Saque próximo ao limite diário permitido',
-  },
-];
-
-export const useStore = create<AppState>((set) => ({
+export const useStore = create<AppState>((set, get) => ({
   user: null,
-  clients: mockClients,
-  transactions: mockTransactions,
-  alerts: mockAlerts,
+  clients: [],
+  transactions: [],
+  alerts: [],
 
   login: async (username: string, password: string) => {
     // Mock authentication for demonstration
@@ -332,4 +179,25 @@ export const useStore = create<AppState>((set) => ({
         alert.id === id ? { ...alert, status } : alert
       ),
     })),
+
+  fetchClients: async () => {
+    const data = await fetchFromAPI('clients');
+    if (data) set({ clients: data });
+  },
+
+  fetchTransactions: async () => {
+    const data = await fetchFromAPI('transactions');
+    if (data) set({ transactions: data });
+  },
+
+  fetchAlerts: async () => {
+    const data = await fetchFromAPI('alerts');
+    if (data) set({ alerts: data });
+  },
+
+  fetchAllData: async () => {
+    await get().fetchClients();
+    await get().fetchTransactions();
+    await get().fetchAlerts();
+  },
 }));

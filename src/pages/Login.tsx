@@ -8,14 +8,16 @@ export function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const login = useStore((state) => state.login);
+  const fetchAllData = useStore((state) => state.fetchAllData);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    const success = login(username, password);
-    if (await success) {
+    const success = await login(username, password);
+    if (success) {
+      await fetchAllData();
       navigate('/home');
     } else {
       setError('Credenciais inválidas. Login sem consulta ao backend: admin / admin');
