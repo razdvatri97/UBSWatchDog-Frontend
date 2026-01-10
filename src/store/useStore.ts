@@ -12,6 +12,7 @@ interface AppState {
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   addClient: (client: Omit<Client, 'id' | 'dataCadastro'>) => void;
+  createClient: (client: Omit<Client, 'id' | 'dataCadastro'>) => Promise<boolean>;
   addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
   updateAlertStatus: (id: string, status: Alert['status']) => void;
   fetchClients: () => Promise<void>;
@@ -89,6 +90,21 @@ export const useStore = create<AppState>((set, get) => ({
         },
       ],
     })),
+
+  createClient: async (clientData) => {
+    const data = await fetchFromAPI('api/clients', {
+      method: 'POST',
+      body: JSON.stringify(clientData),
+    });
+    if (data) {
+      // Assuming the API returns the full client object with id and dataCadastro
+      set((state) => ({
+        clients: [...state.clients, data],
+      }));
+      return true;
+    }
+    return false;
+  },
 
   addTransaction: (transactionData) =>
     set((state) => {
@@ -176,17 +192,17 @@ export const useStore = create<AppState>((set, get) => ({
     })),
 
   fetchClients: async () => {
-    const data = await fetchFromAPI('clients');
+    const data = await fetchFromAPI('api/clients');
     if (data) set({ clients: data });
   },
 
   fetchTransactions: async () => {
-    const data = await fetchFromAPI('transactions');
+    const data = await fetchFromAPI('api/transactions');
     if (data) set({ transactions: data });
   },
 
   fetchAlerts: async () => {
-    const data = await fetchFromAPI('alerts');
+    const data = await fetchFromAPI('api/alerts');
     if (data) set({ alerts: data });
   },
 
