@@ -11,11 +11,11 @@ import { Layout } from './components/layout/Layout';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const user = useStore((state) => state.user);
-  
+
   if (!user) {
     return <Navigate to="/" replace />;
   }
-  
+
   return <>{children}</>;
 }
 

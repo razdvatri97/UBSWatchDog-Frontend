@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { Client, Transaction, Alert, User } from '../types';
 
 // Base API URL from environment variable
-const API_BASE = (import.meta as any).env.VITE_API_BASE || 'http://localhost:8080';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
 
 interface AppState {
   user: User | null;
@@ -27,12 +27,12 @@ interface AppState {
 
 const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) => {
   const { accessToken, tokenType } = useStore.getState();
-  
+
   const defaultOptions: RequestInit = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      ...(accessToken && tokenType ? { 'Authorization': `${tokenType} ${accessToken}` } : {}),
+      ...(accessToken && tokenType ? { Authorization: `${tokenType} ${accessToken}` } : {}),
     },
   };
 
@@ -63,7 +63,7 @@ export const useStore = create<AppState>((set, get) => ({
   login: async (email: string, password: string) => {
     // Mock authentication for demonstration
     if (email === 'admin@example.com' && password === 'admin') {
-      set({ 
+      set({
         user: { email: 'admin@example.com', name: 'Analista de Compliance [DEMO]' },
         accessToken: 'mock-token',
         refreshToken: 'mock-refresh-token',
@@ -73,15 +73,15 @@ export const useStore = create<AppState>((set, get) => ({
       return true;
     }
 
-    const data = await fetchFromAPI('login', { 
-      method: 'POST', 
-      body: JSON.stringify({ email, password }) 
+    const data = await fetchFromAPI('login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
     });
-    
+
     if (data) {
-      set({ 
-        user: { 
-          email: data.email || email, 
+      set({
+        user: {
+          email: data.email || email,
           name: data.name || 'User',
         },
         accessToken: data.accessToken,
@@ -89,7 +89,7 @@ export const useStore = create<AppState>((set, get) => ({
         tokenType: data.tokenType,
         expiresIn: data.expiresIn,
       });
-      
+
       console.log('Login successful:', data.email || email);
       return true;
     } else {
@@ -97,13 +97,14 @@ export const useStore = create<AppState>((set, get) => ({
     }
   },
 
-  logout: () => set({ 
-    user: null, 
-    accessToken: null, 
-    refreshToken: null, 
-    tokenType: null, 
-    expiresIn: null 
-  }),
+  logout: () =>
+    set({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      tokenType: null,
+      expiresIn: null,
+    }),
 
   addClient: (clientData) =>
     set((state) => ({
@@ -137,7 +138,7 @@ export const useStore = create<AppState>((set, get) => ({
       method: 'POST',
       body: JSON.stringify(transactionData),
     });
-    
+
     if (!apiData) {
       return false;
     }
@@ -165,7 +166,7 @@ export const useStore = create<AppState>((set, get) => ({
         newTransaction,
       ];
       const totalToday = todayTransactions.reduce((sum, t) => sum + t.valor, 0);
-      
+
       if (limits[transactionData.moeda] && totalToday > limits[transactionData.moeda]) {
         newAlerts.push({
           id: `alert-${Date.now()}-1`,
@@ -224,9 +225,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   updateAlertStatus: (id, status) =>
     set((state) => ({
-      alerts: state.alerts.map((alert) =>
-        alert.id === id ? { ...alert, status } : alert
-      ),
+      alerts: state.alerts.map((alert) => (alert.id === id ? { ...alert, status } : alert)),
     })),
 
   fetchClients: async () => {

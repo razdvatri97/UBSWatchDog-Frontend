@@ -128,30 +128,22 @@ export function Alerts() {
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  ID
-                </th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">ID</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Cliente
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  Regra
-                </th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Regra</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Descrição
                 </th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Severidade
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  Status
-                </th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Status</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Data/Hora
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  Ações
-                </th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -162,9 +154,7 @@ export function Alerts() {
                     {getClientName(alert.clienteId)}
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-700">{alert.regra}</td>
-                  <td className="px-6 py-4 text-sm text-slate-600 max-w-xs">
-                    {alert.descricao}
-                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600 max-w-xs">{alert.descricao}</td>
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getSeverityBadgeColor(
@@ -201,9 +191,7 @@ export function Alerts() {
           </table>
 
           {filteredAlerts.length === 0 && (
-            <div className="text-center py-12 text-slate-500">
-              Nenhum alerta encontrado
-            </div>
+            <div className="text-center py-12 text-slate-500">Nenhum alerta encontrado</div>
           )}
         </div>
       </div>

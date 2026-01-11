@@ -156,9 +156,7 @@ export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Contraparte
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Contraparte</label>
             <input
               type="text"
               value={formData.contraparte}
@@ -170,9 +168,7 @@ export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Data e Hora
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Data e Hora</label>
             <input
               type="datetime-local"
               value={formData.dataHora}

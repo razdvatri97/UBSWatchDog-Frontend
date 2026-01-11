@@ -1,18 +1,27 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { FileDown, BarChart3, Search } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 import { Report } from '../types';
 
 export function Reports() {
   const clients = useStore((state) => state.clients);
   const transactions = useStore((state) => state.transactions);
   const alerts = useStore((state) => state.alerts);
-  
+
   const [filters, setFilters] = useState({
-    clienteId: ''
+    clienteId: '',
   });
-  
+
   const [report, setReport] = useState<Report | null>(null);
   const [clientSearchTerm, setClientSearchTerm] = useState('');
 
@@ -31,13 +40,11 @@ export function Reports() {
     if (!client) return;
 
     const clientTransactions = transactions.filter((t) => {
-      return (
-        t.clienteId === filters.clienteId);
+      return t.clienteId === filters.clienteId;
     });
 
     const clientAlerts = alerts.filter((a) => {
-      return (
-        a.clienteId === filters.clienteId);
+      return a.clienteId === filters.clienteId;
     });
 
     const totalMovimentado = clientTransactions.reduce((sum, t) => sum + t.valor, 0);
@@ -265,9 +272,7 @@ export function Reports() {
               <table className="w-full">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                      ID
-                    </th>
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">ID</th>
                     <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                       Tipo
                     </th>
@@ -321,9 +326,7 @@ export function Reports() {
       {!report && (
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-12 text-center">
           <BarChart3 className="size-16 text-slate-300 mx-auto mb-4" />
-          <p className="text-slate-500">
-            Selecione um cliente e período para gerar o relatório
-          </p>
+          <p className="text-slate-500">Selecione um cliente e período para gerar o relatório</p>
         </div>
       )}
     </div>

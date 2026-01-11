@@ -1,6 +1,18 @@
 import { useStore } from '../store/useStore';
 import { Users, ArrowLeftRight, AlertTriangle, ShieldAlert } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts';
 
 export function Home() {
   const clients = useStore((state) => state.clients);
@@ -127,7 +139,10 @@ export function Home() {
                 dataKey="value"
               >
                 {alertsBySeverity.map((entry) => (
-                  <Cell key={`cell-${entry.name}`} fill={COLORS[entry.name as keyof typeof COLORS]} />
+                  <Cell
+                    key={`cell-${entry.name}`}
+                    fill={COLORS[entry.name as keyof typeof COLORS]}
+                  />
                 ))}
               </Pie>
               <Tooltip />

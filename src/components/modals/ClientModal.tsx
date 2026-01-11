@@ -36,7 +36,7 @@ export function ClientModal({ isOpen, onClose }: ClientModalProps) {
       } else {
         setError('Erro ao cadastrar cliente. Tente novamente.');
       }
-    } catch (error) {
+    } catch {
       setError('Erro ao conectar com o servidor. Tente novamente.');
     } finally {
       setIsLoading(false);
@@ -66,9 +66,7 @@ export function ClientModal({ isOpen, onClose }: ClientModalProps) {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Nome Completo
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Nome Completo</label>
             <input
               type="text"
               value={formData.nome}
@@ -92,9 +90,7 @@ export function ClientModal({ isOpen, onClose }: ClientModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Nível de Risco
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Nível de Risco</label>
             <select
               value={formData.nivelRisco}
               onChange={(e) =>
@@ -112,9 +108,7 @@ export function ClientModal({ isOpen, onClose }: ClientModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              KYC Status
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">KYC Status</label>
             <select
               value={formData.kycStatus}
               onChange={(e) =>

@@ -123,15 +123,9 @@ export function Clients() {
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  ID
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  Nome
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  País
-                </th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">ID</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Nome</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">País</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Nível de Risco
                 </th>
@@ -147,9 +141,7 @@ export function Clients() {
               {filteredClients.map((client) => (
                 <tr key={client.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 text-sm text-slate-600">{client.id}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-slate-800">
-                    {client.nome}
-                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-slate-800">{client.nome}</td>
                   <td className="px-6 py-4 text-sm text-slate-600">{client.pais}</td>
                   <td className="px-6 py-4">
                     <span
@@ -178,9 +170,7 @@ export function Clients() {
           </table>
 
           {filteredClients.length === 0 && (
-            <div className="text-center py-12 text-slate-500">
-              Nenhum cliente encontrado
-            </div>
+            <div className="text-center py-12 text-slate-500">Nenhum cliente encontrado</div>
           )}
         </div>
       </div>

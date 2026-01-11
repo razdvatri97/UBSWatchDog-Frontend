@@ -16,8 +16,7 @@ export function Transactions() {
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesClient = !filters.clienteId || transaction.clienteId === filters.clienteId;
     const transactionDate = new Date(transaction.dataHora);
-    const matchesStartDate =
-      !filters.dataInicio || transactionDate >= new Date(filters.dataInicio);
+    const matchesStartDate = !filters.dataInicio || transactionDate >= new Date(filters.dataInicio);
     const matchesEndDate =
       !filters.dataFim || transactionDate <= new Date(filters.dataFim + 'T23:59:59');
 
@@ -79,9 +78,7 @@ export function Transactions() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Data Início
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Data Início</label>
             <input
               type="date"
               value={filters.dataInicio}
@@ -91,9 +88,7 @@ export function Transactions() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Data Fim
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Data Fim</label>
             <input
               type="date"
               value={filters.dataFim}
@@ -110,21 +105,13 @@ export function Transactions() {
           <table className="w-full">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  ID
-                </th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">ID</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Cliente
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  Tipo
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  Valor
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
-                  Moeda
-                </th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Tipo</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Valor</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Moeda</th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Contraparte
                 </th>
@@ -156,9 +143,7 @@ export function Transactions() {
                     })}
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600">{transaction.moeda}</td>
-                  <td className="px-6 py-4 text-sm text-slate-600">
-                    {transaction.contraparte}
-                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">{transaction.contraparte}</td>
                   <td className="px-6 py-4 text-sm text-slate-600">
                     {new Date(transaction.dataHora).toLocaleString('pt-BR')}
                   </td>
@@ -168,9 +153,7 @@ export function Transactions() {
           </table>
 
           {filteredTransactions.length === 0 && (
-            <div className="text-center py-12 text-slate-500">
-              Nenhuma transação encontrada
-            </div>
+            <div className="text-center py-12 text-slate-500">Nenhuma transação encontrada</div>
           )}
         </div>
       </div>

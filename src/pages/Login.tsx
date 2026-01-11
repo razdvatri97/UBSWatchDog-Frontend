@@ -34,18 +34,14 @@ export function Login() {
             </div>
           </div>
 
-          <h1 className="text-3xl font-bold text-center text-[#333333] mb-2">
-            UBS Watchdog
-          </h1>
+          <h1 className="text-3xl font-bold text-center text-[#333333] mb-2">UBS Watchdog</h1>
           <p className="text-center text-[#666666] mb-8">
             Sistema de Monitoramento de Transações & Compliance.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">
-                Email
-              </label>
+              <label className="block text-sm font-medium text-[#333333] mb-2">Email</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
                 <input
@@ -60,9 +56,7 @@ export function Login() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">
-                Senha
-              </label>
+              <label className="block text-sm font-medium text-[#333333] mb-2">Senha</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
                 <input
@@ -91,15 +85,11 @@ export function Login() {
           </form>
 
           <div className="mt-6 p-4 bg-[#f5f5f5] rounded-lg">
-            <p className="text-xs text-[#666666] text-center">
-              Desenvolvido por: Grupo 3
-            </p>
+            <p className="text-xs text-[#666666] text-center">Desenvolvido por: Grupo 3</p>
           </div>
         </div>
 
-        <p className="text-center text-slate-300 text-sm mt-6">
-          © 2026 UBS Watchdog.
-        </p>
+        <p className="text-center text-slate-300 text-sm mt-6">© 2026 UBS Watchdog.</p>
       </div>
     </div>
   );
