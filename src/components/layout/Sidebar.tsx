@@ -23,7 +23,10 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="w-64 bg-[#1a1a1a] text-white min-h-screen flex flex-col">
+    <div 
+      className="fixed left-0 top-0 w-64 bg-[#1a1a1a] text-white flex flex-col"
+      style={{ height: '100vh' }}
+    >
       <div className="p-6 border-b border-[#2a2a2a]">
         <div className="flex items-center gap-3">
           <Shield className="size-8 text-[#e60028]" />
