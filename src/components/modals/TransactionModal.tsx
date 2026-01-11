@@ -9,7 +9,9 @@ interface TransactionModalProps {
 
 export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
   const clients = useStore((state) => state.clients);
-  const addTransaction = useStore((state) => state.addTransaction);
+  const addTransaction = useStore((state) => state.createTransaction);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     clienteId: '',
     tipo: 'Depósito' as 'Depósito' | 'Saque' | 'Transferência',
@@ -19,21 +21,31 @@ export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
     dataHora: new Date().toISOString().slice(0, 16),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addTransaction({
+    setIsSubmitting(true);
+    setError('');
+
+    const success = await addTransaction({
       ...formData,
       valor: parseFloat(formData.valor),
     });
-    setFormData({
-      clienteId: '',
-      tipo: 'Depósito',
-      valor: '',
-      moeda: 'BRL',
-      contraparte: '',
-      dataHora: new Date().toISOString().slice(0, 16),
-    });
-    onClose();
+
+    setIsSubmitting(false);
+
+    if (success) {
+      setFormData({
+        clienteId: '',
+        tipo: 'Depósito',
+        valor: '',
+        moeda: 'BRL',
+        contraparte: '',
+        dataHora: new Date().toISOString().slice(0, 16),
+      });
+      onClose();
+    } else {
+      setError('Erro ao registrar transação. Tente novamente.');
+    }
   };
 
   if (!isOpen) return null;
@@ -145,19 +157,27 @@ export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
             />
           </div>
 
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
           <div className="flex gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-[#e60028] text-white rounded-lg hover:bg-[#cc0022] transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2 bg-[#e60028] text-white rounded-lg hover:bg-[#cc0022] transition-colors disabled:opacity-50"
             >
-              Registrar
+              {isSubmitting ? 'Registrando...' : 'Registrar'}
             </button>
           </div>
         </form>

@@ -17,7 +17,7 @@ interface AppState {
   logout: () => void;
   addClient: (client: Omit<Client, 'id' | 'dataCadastro'>) => void;
   createClient: (client: Omit<Client, 'id' | 'dataCadastro'>) => Promise<boolean>;
-  addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
+  createTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<boolean>;
   updateAlertStatus: (id: string, status: Alert['status']) => void;
   fetchClients: () => Promise<void>;
   fetchTransactions: () => Promise<void>;
@@ -132,11 +132,20 @@ export const useStore = create<AppState>((set, get) => ({
     return false;
   },
 
-  addTransaction: (transactionData) =>
+  createTransaction: async (transactionData) => {
+    const apiData = await fetchFromAPI('api/transactions', {
+      method: 'POST',
+      body: JSON.stringify(transactionData),
+    });
+    
+    if (!apiData) {
+      return false;
+    }
+
     set((state) => {
       const newTransaction: Transaction = {
         ...transactionData,
-        id: Date.now().toString(),
+        id: apiData.id || Date.now().toString(),
       };
 
       // Check compliance rules and create alerts
@@ -208,7 +217,10 @@ export const useStore = create<AppState>((set, get) => ({
         transactions: [...state.transactions, newTransaction],
         alerts: [...state.alerts, ...newAlerts],
       };
-    }),
+    });
+
+    return true;
+  },
 
   updateAlertStatus: (id, status) =>
     set((state) => ({
