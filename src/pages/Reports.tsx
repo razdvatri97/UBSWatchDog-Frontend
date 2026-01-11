@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { FileDown, BarChart3 } from 'lucide-react';
+import { FileDown, BarChart3, Search } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Report } from '../types';
 
@@ -16,6 +16,12 @@ export function Reports() {
   });
   
   const [report, setReport] = useState<Report | null>(null);
+  const [clientSearchTerm, setClientSearchTerm] = useState('');
+
+  const selectedClient = clients.find((c) => c.id === filters.clienteId);
+  const filteredClients = clients.filter((client) =>
+    client.nome.toLowerCase().includes(clientSearchTerm.toLowerCase())
+  );
 
   const generateReport = () => {
     if (!filters.clienteId || !filters.dataInicio || !filters.dataFim) {
@@ -143,18 +149,36 @@ export function Reports() {
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Selecionar Cliente
             </label>
-            <select
-              value={filters.clienteId}
-              onChange={(e) => setFilters({ ...filters, clienteId: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Escolha um cliente</option>
-              {clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.nome}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Buscar cliente..."
+                value={clientSearchTerm || selectedClient?.nome || ''}
+                onChange={(e) => setClientSearchTerm(e.target.value)}
+                className="w-full pl-11 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {clientSearchTerm && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-slate-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-10">
+                  {filteredClients.length > 0 ? (
+                    filteredClients.map((client) => (
+                      <div
+                        key={client.id}
+                        onClick={() => {
+                          setFilters({ ...filters, clienteId: client.id });
+                          setClientSearchTerm('');
+                        }}
+                        className="px-4 py-2 hover:bg-slate-50 cursor-pointer"
+                      >
+                        {client.nome}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-2 text-slate-500">Nenhum cliente encontrado</div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
