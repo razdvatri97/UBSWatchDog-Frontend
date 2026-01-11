@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore';
 import { Shield, Lock, User } from 'lucide-react';
 
 export function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const login = useStore((state) => state.login);
@@ -15,12 +15,12 @@ export function Login() {
     e.preventDefault();
     setError('');
 
-    const success = await login(username, password);
+    const success = await login(email, password);
     if (success) {
       await fetchAllData();
       navigate('/home');
     } else {
-      setError('Credenciais inválidas. Login sem consulta ao backend: admin / admin');
+      setError('Credenciais inválidas. Login sem consulta ao backend: admin@example.com / admin');
     }
   };
 
@@ -44,16 +44,16 @@ export function Login() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-[#333333] mb-2">
-                Usuário
+                Email
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
                 <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-11 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e60028] focus:border-transparent"
-                  placeholder="Digite seu usuário"
+                  placeholder="Digite seu email"
                   required
                 />
               </div>

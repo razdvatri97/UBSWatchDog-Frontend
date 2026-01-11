@@ -37,6 +37,6 @@ export interface Report {
 }
 
 export interface User {
-  username: string;
+  email: string;
   name: string;
 }

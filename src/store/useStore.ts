@@ -6,10 +6,14 @@ const API_BASE = (import.meta as any).env.VITE_API_BASE || 'http://localhost:808
 
 interface AppState {
   user: User | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  tokenType: string | null;
+  expiresIn: number | null;
   clients: Client[];
   transactions: Transaction[];
   alerts: Alert[];
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   addClient: (client: Omit<Client, 'id' | 'dataCadastro'>) => void;
   createClient: (client: Omit<Client, 'id' | 'dataCadastro'>) => Promise<boolean>;
@@ -22,10 +26,13 @@ interface AppState {
 }
 
 const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) => {
+  const { accessToken, tokenType } = useStore.getState();
+  
   const defaultOptions: RequestInit = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      ...(accessToken && tokenType ? { 'Authorization': `${tokenType} ${accessToken}` } : {}),
     },
   };
 
@@ -45,39 +52,58 @@ const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) => {
 
 export const useStore = create<AppState>((set, get) => ({
   user: null,
+  accessToken: null,
+  refreshToken: null,
+  tokenType: null,
+  expiresIn: null,
   clients: [],
   transactions: [],
   alerts: [],
 
-  login: async (username: string, password: string) => {
+  login: async (email: string, password: string) => {
     // Mock authentication for demonstration
-    if (username === 'admin' && password === 'admin') {
-      set({ user: { username: 'admin', 
-            name: 'Analista de Compliance [DEMO]' } });
+    if (email === 'admin@example.com' && password === 'admin') {
+      set({ 
+        user: { email: 'admin@example.com', name: 'Analista de Compliance [DEMO]' },
+        accessToken: 'mock-token',
+        refreshToken: 'mock-refresh-token',
+        tokenType: 'Bearer',
+        expiresIn: 3600,
+      });
       return true;
     }
 
     const data = await fetchFromAPI('login', { 
       method: 'POST', 
-      body: JSON.stringify({ username, password }) 
+      body: JSON.stringify({ email, password }) 
     });
     
     if (data) {
       set({ 
         user: { 
-          username: data.username, 
-          name: data.name,
-        } 
+          email: data.email || email, 
+          name: data.name || 'User',
+        },
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+        tokenType: data.tokenType,
+        expiresIn: data.expiresIn,
       });
       
-      console.log('Login successful:', data.username);
+      console.log('Login successful:', data.email || email);
       return true;
     } else {
       return false;
     }
   },
 
-  logout: () => set({ user: null }),
+  logout: () => set({ 
+    user: null, 
+    accessToken: null, 
+    refreshToken: null, 
+    tokenType: null, 
+    expiresIn: null 
+  }),
 
   addClient: (clientData) =>
     set((state) => ({
