@@ -43,7 +43,7 @@ const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) => {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return await response.json();
+    return (await response.json()) as unknown;
   } catch (error) {
     console.error(`Error fetching ${endpoint}:`, error);
     return null;
@@ -76,7 +76,7 @@ export const useStore = create<AppState>((set, get) => ({
     const data = await fetchFromAPI('login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
-    });
+    }) as { email?: string; name?: string; accessToken: string; refreshToken: string; tokenType: string; expiresIn: number } | null;
 
     if (data) {
       set({
@@ -122,7 +122,7 @@ export const useStore = create<AppState>((set, get) => ({
     const data = await fetchFromAPI('api/clients', {
       method: 'POST',
       body: JSON.stringify(clientData),
-    });
+    }) as Client | null;
     if (data) {
       // Assuming the API returns the full client object with id and dataCadastro
       set((state) => ({
@@ -137,7 +137,7 @@ export const useStore = create<AppState>((set, get) => ({
     const apiData = await fetchFromAPI('api/transactions', {
       method: 'POST',
       body: JSON.stringify(transactionData),
-    });
+    }) as { id: string } | null;
 
     if (!apiData) {
       return false;
@@ -229,17 +229,17 @@ export const useStore = create<AppState>((set, get) => ({
     })),
 
   fetchClients: async () => {
-    const data = await fetchFromAPI('api/clients');
+    const data = await fetchFromAPI('api/clients') as Client[] | null;
     if (data) set({ clients: data });
   },
 
   fetchTransactions: async () => {
-    const data = await fetchFromAPI('api/transactions');
+    const data = await fetchFromAPI('api/transactions') as Transaction[] | null;
     if (data) set({ transactions: data });
   },
 
   fetchAlerts: async () => {
-    const data = await fetchFromAPI('api/alerts');
+    const data = await fetchFromAPI('api/alerts') as Alert[] | null;
     if (data) set({ alerts: data });
   },
 
