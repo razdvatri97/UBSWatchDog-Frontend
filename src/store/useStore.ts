@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { Client, Transaction, Alert, User } from '../types';
 
 // Base API URL from environment variable
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080';
+const API_BASE = "https://r3s6m368-5083.brs.devtunnels.ms";
 
 interface AppState {
   user: User | null;
@@ -62,7 +62,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   login: async (email: string, password: string) => {
     // Mock authentication for demonstration
-    if (email === 'admin@example.com' && password === 'admin') {
+   /* if (email === 'admin@example.com' && password === 'admin') {
       set({
         user: { email: 'admin@example.com', name: 'Analista de Compliance [DEMO]' },
         accessToken: 'mock-token',
@@ -71,12 +71,14 @@ export const useStore = create<AppState>((set, get) => ({
         expiresIn: 3600,
       });
       return true;
-    }
+    }*/
 
-    const data = await fetchFromAPI('login', {
+    const data = await fetchFromAPI('api/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }) as { email?: string; name?: string; accessToken: string; refreshToken: string; tokenType: string; expiresIn: number } | null;
+
+    console.log('Login API response:', data);
 
     if (data) {
       set({

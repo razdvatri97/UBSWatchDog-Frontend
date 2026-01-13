@@ -11,17 +11,19 @@ export function Login() {
   const fetchAllData = useStore((state) => state.fetchAllData);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    const success = await login(email, password);
-    if (success) {
-      await fetchAllData();
-      navigate('/home');
-    } else {
-      setError('Credenciais inválidas. Login sem consulta ao backend: admin@example.com / admin');
-    }
+    void (async () => {
+      const success = await login(email, password);
+      if (success) {
+        await fetchAllData();
+        navigate('/home');
+      } else {
+        setError('Credenciais inválidas. Login sem consulta ao backend: admin@example.com / admin');
+      }
+    })();
   };
 
   return (
