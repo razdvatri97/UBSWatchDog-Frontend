@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 
@@ -8,9 +8,13 @@ interface ClientModalProps {
 }
 
 export function ClientModal({ isOpen, onClose }: ClientModalProps) {
+  const countries = useStore((state) => state.countries);
+  const fetchCountries = useStore((state) => state.fetchCountries);
   const createClient = useStore((state) => state.createClient);
+
   const [formData, setFormData] = useState({
     nome: '',
+    countryId: '',
     pais: '',
     nivelRisco: 'Baixo' as 'Baixo' | 'Médio' | 'Alto',
     kycStatus: 'Pendente' as 'Pendente' | 'Aprovado' | 'Rejeitado',
@@ -18,16 +22,26 @@ export function ClientModal({ isOpen, onClose }: ClientModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [isCountryLoading, setIsCountryLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (countries.length > 0) return;
+    setIsCountryLoading(true);
+    void fetchCountries().finally(() => setIsCountryLoading(false));
+  }, [isOpen, countries.length, fetchCountries]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      const success = await createClient(formData);
+      const success = await createClient(formData as any);
       if (success) {
         setFormData({
           nome: '',
+          countryId: '',
           pais: '',
           nivelRisco: 'Baixo',
           kycStatus: 'Pendente',
@@ -47,7 +61,7 @@ export function ClientModal({ isOpen, onClose }: ClientModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm">
         <div className="flex items-center justify-between p-6 border-b border-slate-200">
           <h2 className="text-xl font-semibold text-slate-800">Cadastrar Cliente</h2>
           <button
@@ -79,14 +93,29 @@ export function ClientModal({ isOpen, onClose }: ClientModalProps) {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">País</label>
-            <input
-              type="text"
-              value={formData.pais}
-              onChange={(e) => setFormData({ ...formData, pais: e.target.value })}
+            <select
+              value={formData.countryId}
+              onChange={(e) => {
+                const selected = countries.find((c) => c.id === e.target.value);
+                setFormData({
+                  ...formData,
+                  countryId: e.target.value,
+                  pais: selected?.name ?? '',
+                });
+              }}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Digite o país"
               required
-            />
+              disabled={isCountryLoading}
+            >
+              <option value="" disabled>
+                {isCountryLoading ? 'Carregando países...' : 'Selecione o país'}
+              </option>
+              {countries.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

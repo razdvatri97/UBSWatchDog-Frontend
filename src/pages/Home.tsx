@@ -15,9 +15,10 @@ import {
 } from 'recharts';
 
 export function Home() {
-  const clients = useStore((state) => state.clients);
-  const transactions = useStore((state) => state.transactions);
-  const alerts = useStore((state) => state.alerts);
+
+  const clients = useStore((state) => Array.isArray(state.clients) ? state.clients : []);
+  const transactions = useStore((state) => Array.isArray(state.transactions) ? state.transactions : []);
+  const alerts = useStore((state) => Array.isArray(state.alerts) ? state.alerts : []);
 
   const totalClients = clients.length;
   const totalTransactions = transactions.length;

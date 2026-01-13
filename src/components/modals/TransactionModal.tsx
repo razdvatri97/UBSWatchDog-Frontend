@@ -32,9 +32,22 @@ export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
     setIsSubmitting(true);
     setError('');
 
+    if (!formData.clienteId) {
+      setError('Selecione um cliente da lista antes de registrar a transação.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    const valorNumber = parseFloat(formData.valor);
+    if (Number.isNaN(valorNumber) || valorNumber <= 0) {
+      setError('Informe um valor numérico maior que zero.');
+      setIsSubmitting(false);
+      return;
+    }
+
     const success = await createTransaction({
       ...formData,
-      valor: parseFloat(formData.valor),
+      valor: valorNumber,
     });
 
     setIsSubmitting(false);

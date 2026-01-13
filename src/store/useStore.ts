@@ -2,9 +2,11 @@ import { create } from 'zustand';
 import { Client, Transaction, Alert, User } from '../types';
 
 // Base API URL from environment variable
-const API_BASE = "https://r3s6m368-5083.brs.devtunnels.ms";
+const API_BASE = "https://r3s6m368-5083.brs.devtunnels.ms/api";
 
 interface AppState {
+    countries: { id: string; name: string }[];
+    fetchCountries: () => Promise<void>;
   user: User | null;
   accessToken: string | null;
   refreshToken: string | null;
@@ -25,7 +27,7 @@ interface AppState {
   fetchAllData: () => Promise<void>;
 }
 
-const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) => {
+export const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) => {
   const { accessToken, tokenType } = useStore.getState();
 
   const defaultOptions: RequestInit = {
@@ -41,6 +43,20 @@ const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) => {
   try {
     const response = await fetch(`${API_BASE}/${endpoint}`, mergedOptions);
     if (!response.ok) {
+      let errorBody: unknown = null;
+      try {
+        errorBody = await response.json();
+      } catch {
+        // ignore JSON parse errors
+      }
+      console.error(`HTTP error when calling ${endpoint}:`, response.status, errorBody);
+      if (errorBody && typeof errorBody === 'object') {
+        try {
+          console.error('Validation details:', JSON.stringify(errorBody, null, 2));
+        } catch {
+          // ignore stringify errors
+        }
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     return (await response.json()) as unknown;
@@ -51,6 +67,33 @@ const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) => {
 };
 
 export const useStore = create<AppState>((set, get) => ({
+    countries: [],
+    fetchCountries: async () => {
+      const response = await fetchFromAPI('countries') as
+        | { success?: boolean; data?: { items?: any[] } | any[] }
+        | any[]
+        | null;
+
+      let items: any[] = [];
+
+      if (Array.isArray(response)) {
+        items = response;
+      } else if (response && typeof response === 'object') {
+        const data = (response as any).data;
+        if (Array.isArray(data)) {
+          items = data;
+        } else if (data && Array.isArray((data as any).items)) {
+          items = (data as any).items;
+        }
+      }
+
+      const countries = items.map((item) => ({
+        id: item.id,
+        name: item.name ?? item.countryName ?? item.isoCode ?? item.code ?? '',
+      })).filter((c) => c.id && c.name);
+
+      set({ countries });
+    },
   user: null,
   accessToken: null,
   refreshToken: null,
@@ -61,8 +104,9 @@ export const useStore = create<AppState>((set, get) => ({
   alerts: [],
 
   login: async (email: string, password: string) => {
+
     // Mock authentication for demonstration
-   /* if (email === 'admin@example.com' && password === 'admin') {
+    if (email === 'admin@example.com' && password === 'admin') {
       set({
         user: { email: 'admin@example.com', name: 'Analista de Compliance [DEMO]' },
         accessToken: 'mock-token',
@@ -71,9 +115,9 @@ export const useStore = create<AppState>((set, get) => ({
         expiresIn: 3600,
       });
       return true;
-    }*/
+    }
 
-    const data = await fetchFromAPI('api/login', {
+    const data = await fetchFromAPI('login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }) as { email?: string; name?: string; accessToken: string; refreshToken: string; tokenType: string; expiresIn: number } | null;
@@ -92,7 +136,8 @@ export const useStore = create<AppState>((set, get) => ({
         expiresIn: data.expiresIn,
       });
 
-      console.log('Login successful:', data.email || email);
+      console.log('Login successful:', data.email || email);      
+
       return true;
     } else {
       return false;
@@ -121,108 +166,93 @@ export const useStore = create<AppState>((set, get) => ({
     })),
 
   createClient: async (clientData) => {
-    const data = await fetchFromAPI('api/clients', {
+    const riskLevelMap: Record<string, number> = { Baixo: 0, Médio: 1, Alto: 2 };
+    const kycStatusMap: Record<string, number> = { Pendente: 0, Aprovado: 1, Rejeitado: 2 };
+
+    const payload = {
+      name: clientData.nome,
+      accountNumber: (clientData as any).accountNumber ?? '',
+      bankCode: (clientData as any).bankCode ?? '',
+      swiftOrBic: (clientData as any).swiftOrBic ?? '',
+      riskLevel: riskLevelMap[clientData.nivelRisco] ?? 0,
+      kycStatus: kycStatusMap[clientData.kycStatus] ?? 0,
+      countryId: (clientData as any).countryId,
+    };
+
+    const response = await fetchFromAPI('clients', {
       method: 'POST',
-      body: JSON.stringify(clientData),
-    }) as Client | null;
-    if (data) {
-      // Assuming the API returns the full client object with id and dataCadastro
+      body: JSON.stringify(payload),
+    }) as any;
+
+    if (response) {
+      const newClient: Client = {
+        id:
+          response?.id ||
+          response?.data?.id ||
+          response?.data?.clientId ||
+          Date.now().toString(),
+        nome: clientData.nome,
+        pais: (clientData as any).pais ?? '',
+        nivelRisco: clientData.nivelRisco,
+        kycStatus: clientData.kycStatus,
+        dataCadastro: new Date().toISOString().split('T')[0],
+      };
+
       set((state) => ({
-        clients: [...state.clients, data],
+        clients: [...state.clients, newClient],
       }));
+
+      console.log('Client created successfully', newClient);
+      console.log('Backend response: ', response);
       return true;
     }
+
     return false;
   },
 
   createTransaction: async (transactionData) => {
-    const apiData = await fetchFromAPI('api/transactions', {
-      method: 'POST',
-      body: JSON.stringify(transactionData),
-    }) as { id: string } | null;
+    const typeMap: Record<Transaction['tipo'], number> = {
+      Depósito: 0,
+      Saque: 1,
+      Transferência: 2,
+    };
 
-    if (!apiData) {
+    // Basic client-side validation to avoid obvious 400s
+    if (!transactionData.clienteId) {
+      console.error('createTransaction validation error: clienteId is required', transactionData);
       return false;
     }
 
-    set((state) => {
-      const newTransaction: Transaction = {
-        ...transactionData,
-        id: apiData.id || Date.now().toString(),
-      };
+    if (transactionData.valor == null || Number.isNaN(transactionData.valor) || transactionData.valor <= 0) {
+      console.error('createTransaction validation error: valor must be a positive number', transactionData);
+      return false;
+    }
 
-      // Check compliance rules and create alerts
-      const newAlerts: Alert[] = [];
-      const client = state.clients.find((c) => c.id === transactionData.clienteId);
+    const payload = {
+      clientId: transactionData.clienteId,
+      // No separate counterparty entity yet; backend can adjust later if needed
+      counterpartyId: transactionData.clienteId,
+      type: typeMap[transactionData.tipo] ?? 0,
+      amount: transactionData.valor,
+      // Align with GET /transactions response, which exposes currencyIsoCode
+      currencyIsoCode: transactionData.moeda,
+      // Align with GET /transactions response, which uses counterpartyName
+      counterpartyName: transactionData.contraparte,
+      occurredAt: new Date(transactionData.dataHora).toISOString(),
+    };
 
-      // Rule 1: Daily limit check (example: BRL 20000, USD 50000, EUR 40000)
-      const limits: Record<string, number> = { BRL: 20000, USD: 50000, EUR: 40000 };
-      const today = new Date().toISOString().split('T')[0];
-      const todayTransactions = [
-        ...state.transactions.filter(
-          (t) =>
-            t.clienteId === transactionData.clienteId &&
-            t.dataHora.startsWith(today) &&
-            t.moeda === transactionData.moeda
-        ),
-        newTransaction,
-      ];
-      const totalToday = todayTransactions.reduce((sum, t) => sum + t.valor, 0);
-
-      if (limits[transactionData.moeda] && totalToday > limits[transactionData.moeda]) {
-        newAlerts.push({
-          id: `alert-${Date.now()}-1`,
-          clienteId: transactionData.clienteId,
-          transacaoId: newTransaction.id,
-          regra: 'Limite Diário Excedido',
-          severidade: 'Alta',
-          status: 'Novo',
-          dataHora: new Date().toISOString(),
-          descricao: `Total de transações diárias ultrapassou ${transactionData.moeda} ${limits[transactionData.moeda].toLocaleString()}`,
-        });
-      }
-
-      // Rule 2: High risk country transfer
-      const highRiskCountries = ['Panamá', 'Ilhas Cayman', 'Bahamas', 'Malta'];
-      if (
-        transactionData.tipo === 'Transferência' &&
-        client &&
-        highRiskCountries.includes(client.pais)
-      ) {
-        newAlerts.push({
-          id: `alert-${Date.now()}-2`,
-          clienteId: transactionData.clienteId,
-          transacaoId: newTransaction.id,
-          regra: 'Transferência Internacional para País de Risco',
-          severidade: 'Alta',
-          status: 'Novo',
-          dataHora: new Date().toISOString(),
-          descricao: `Transferência para país de alto risco (${client.pais})`,
-        });
-      }
-
-      // Rule 3: Structuring detection (multiple small transactions)
-      const recentTransactions = todayTransactions.filter((t) => t.tipo === 'Transferência');
-      if (recentTransactions.length >= 3 && transactionData.tipo === 'Transferência') {
-        newAlerts.push({
-          id: `alert-${Date.now()}-3`,
-          clienteId: transactionData.clienteId,
-          transacaoId: newTransaction.id,
-          regra: 'Possível Fracionamento',
-          severidade: 'Média',
-          status: 'Novo',
-          dataHora: new Date().toISOString(),
-          descricao: `Múltiplas transferências detectadas no mesmo dia (${recentTransactions.length} transações)`,
-        });
-      }
-
-      return {
-        transactions: [...state.transactions, newTransaction],
-        alerts: [...state.alerts, ...newAlerts],
-      };
+    const response = await fetchFromAPI('transactions', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
 
-    return true;
+    if (response) {
+      console.log('Transaction created successfully: ', payload);
+      await get().fetchTransactions();
+      return true;
+    }
+
+    return false;
   },
 
   updateAlertStatus: (id, status) =>
@@ -231,18 +261,99 @@ export const useStore = create<AppState>((set, get) => ({
     })),
 
   fetchClients: async () => {
-    const data = await fetchFromAPI('api/clients') as Client[] | null;
-    if (data) set({ clients: data });
+    const response = await fetchFromAPI('clients') as
+      | { success: boolean; data?: { items?: any[] } }
+      | null;
+
+    const items = response?.data?.items ?? [];
+
+    const mappedClients: Client[] = items.map((item) => {
+      const riskLevelMap: Record<number, Client['nivelRisco']> = {
+        0: 'Baixo',
+        1: 'Médio',
+        2: 'Alto',
+      };
+
+      const kycStatusMap: Record<number, Client['kycStatus']> = {
+        0: 'Pendente',
+        1: 'Aprovado',
+        2: 'Rejeitado',
+      };
+
+      return {
+        id: item.id,
+        nome: item.name,
+        pais: item.countryName,
+        nivelRisco: riskLevelMap[item.riskLevel] ?? 'Baixo',
+        kycStatus: kycStatusMap[item.kycStatus] ?? 'Pendente',
+        dataCadastro: new Date().toISOString().split('T')[0],
+      };
+    });
+
+    set({ clients: mappedClients });
   },
 
   fetchTransactions: async () => {
-    const data = await fetchFromAPI('api/transactions') as Transaction[] | null;
-    if (data) set({ transactions: data });
+    const response = await fetchFromAPI('transactions') as
+      | { success: boolean; data?: { items?: any[] } }
+      | null;
+
+    const items = response?.data?.items ?? [];
+
+    const mappedTransactions: Transaction[] = items.map((item) => {
+      const typeMap: Record<number, Transaction['tipo']> = {
+        0: 'Depósito',
+        1: 'Saque',
+        2: 'Transferência',
+      };
+
+      return {
+        id: item.id,
+        clienteId: item.clientId,
+        tipo: typeMap[item.type] ?? 'Transferência',
+        valor: item.amount,
+        moeda: item.currencyIsoCode || item.currency,
+        contraparte: item.counterpartyName,
+        dataHora: item.occurredAt,
+      };
+    });
+
+    set({ transactions: mappedTransactions });
   },
 
   fetchAlerts: async () => {
-    const data = await fetchFromAPI('api/alerts') as Alert[] | null;
-    if (data) set({ alerts: data });
+    const response = await fetchFromAPI('alerts') as
+      | { success: boolean; data?: { items?: any[] } }
+      | null;
+
+    const items = response?.data?.items ?? [];
+
+    const mappedAlerts: Alert[] = items.map((item) => {
+      const severityMap: Record<number, Alert['severidade']> = {
+        0: 'Baixa',
+        1: 'Média',
+        2: 'Alta',
+      };
+
+      const statusMap: Record<number, Alert['status']> = {
+        0: 'Novo',
+        1: 'Em Análise',
+        2: 'Resolvido',
+      };
+
+      return {
+        id: item.id,
+        clienteId: item.clientId,
+        transacaoId: item.transactionId,
+        regra: item.alertPolicyName || item.alertTemplateName,
+        severidade: severityMap[item.severity] ?? 'Média',
+        status: statusMap[item.status] ?? 'Novo',
+        dataHora: item.createdAt,
+        descricao: item.notes || item.ruleSnapshot || '',
+      };
+    });
+
+    set({ alerts: mappedAlerts });
   },
 
   fetchAllData: async () => {
