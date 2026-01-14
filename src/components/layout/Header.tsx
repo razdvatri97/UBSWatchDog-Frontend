@@ -19,7 +19,7 @@ export function Header() {
           <User className="size-5 text-[#666666]" />
           <div>
             <p className="text-sm font-medium text-[#333333]">{user?.name}</p>
-            <p className="text-xs text-[#666666]">{user?.email}</p>
+            <p className="text-xs text-[#666666]">{user?.username}</p>
           </div>
         </div>
       </div>

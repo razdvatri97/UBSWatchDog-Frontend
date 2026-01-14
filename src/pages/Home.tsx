@@ -25,7 +25,6 @@ export function Home() {
   const totalAlerts = alerts.length;
   const severeAlerts = alerts.filter((a) => a.severidade === 'Alta').length;
 
-  // Data for charts
   const alertsBySeverity = [
     { name: 'Baixa', value: alerts.filter((a) => a.severidade === 'Baixa').length },
     { name: 'Média', value: alerts.filter((a) => a.severidade === 'Média').length },

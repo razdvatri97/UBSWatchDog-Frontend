@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore';
 import { Shield, Lock, User } from 'lucide-react';
 
 export function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const login = useStore((state) => state.login);
@@ -16,12 +16,12 @@ export function Login() {
     setError('');
 
     void (async () => {
-      const success = await login(email, password);
+      const success = await login(username, password);
       if (success) {
         await fetchAllData();
         navigate('/home');
       } else {
-        setError('Credenciais inválidas. Login sem consulta ao backend: admin@example.com / admin');
+        setError('Credenciais inválidas. Login sem consulta ao backend: admin / admin');
       }
     })();
   };
@@ -43,15 +43,15 @@ export function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">Email</label>
+              <label className="block text-sm font-medium text-[#333333] mb-2">Usuário</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full pl-11 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e60028] focus:border-transparent"
-                  placeholder="Digite seu email"
+                  placeholder="Digite seu usuário"
                   required
                 />
               </div>

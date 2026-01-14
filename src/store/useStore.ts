@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import { Client, Transaction, Alert, User } from '../types';
 
-// Base API
-const API_BASE = "https://r3s6m368-5083.brs.devtunnels.ms/api";
+const API_BASE = "https://ubswatchdog.duckdns.org/api"
 
 interface AppState {
     countries: { id: string; name: string }[];
@@ -15,7 +14,7 @@ interface AppState {
   clients: Client[];
   transactions: Transaction[];
   alerts: Alert[];
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   addClient: (client: Omit<Client, 'id' | 'dataCadastro'>) => void;
   createClient: (client: Omit<Client, 'id' | 'dataCadastro'>) => Promise<boolean>;
@@ -66,8 +65,6 @@ export const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) 
   }
 };
 
-// Generic helper to fetch and merge all pages from a paginated endpoint.
-// It understands plain arrays, { data: [...] }, { data: { items, page, totalPages } }, and { items, page, totalPages }.
 const fetchAllPages = async (endpointBase: string): Promise<any[]> => {
   const fetchPage = async (page?: number) => {
     const endpoint = page ? `${endpointBase}?page=${page}` : endpointBase;
@@ -137,12 +134,12 @@ export const useStore = create<AppState>((set, get) => ({
   transactions: [],
   alerts: [],
 
-  login: async (email: string, password: string) => {
+  login: async (username: string, password: string) => {
 
     // Mock authentication for demonstration
-    if (email === 'admin@example.com' && password === 'admin') {
+    if (username === 'admin' && password === 'admin') {
       set({
-        user: { email: 'admin@example.com', name: 'Analista de Compliance [DEMO]' },
+        user: { username: 'admin', name: 'Analista de Compliance [DEMO]' },
         accessToken: 'mock-token',
         refreshToken: 'mock-refresh-token',
         tokenType: 'Bearer',
@@ -153,15 +150,15 @@ export const useStore = create<AppState>((set, get) => ({
 
     const data = await fetchFromAPI('login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
-    }) as { email?: string; name?: string; accessToken: string; refreshToken: string; tokenType: string; expiresIn: number } | null;
+      body: JSON.stringify({ username, email: username, password }),
+    }) as { username?: string; email?: string; name?: string; accessToken: string; refreshToken: string; tokenType: string; expiresIn: number } | null;
 
     console.log('Login API response:', data);
 
     if (data) {
       set({
         user: {
-          email: data.email || email,
+          username: data.username || data.email || username,
           name: data.name || 'User',
         },
         accessToken: data.accessToken,
@@ -170,7 +167,7 @@ export const useStore = create<AppState>((set, get) => ({
         expiresIn: data.expiresIn,
       });
 
-      console.log('Login successful:', data.email || email);      
+      console.log('Login successful:', data.username || username);      
 
       return true;
     } else {
@@ -251,7 +248,6 @@ export const useStore = create<AppState>((set, get) => ({
       Transferência: 2,
     };
 
-    // Basic client-side validation to avoid obvious 400s
     if (!transactionData.clienteId) {
       console.error('createTransaction validation error: clienteId is required', transactionData);
       return false;
@@ -264,13 +260,10 @@ export const useStore = create<AppState>((set, get) => ({
 
     const payload = {
       clientId: transactionData.clienteId,
-      // No separate counterparty entity yet; backend can adjust later if needed
       counterpartyId: transactionData.clienteId,
       type: typeMap[transactionData.tipo] ?? 0,
       amount: transactionData.valor,
-      // Align with GET /transactions response, which exposes currencyIsoCode
       currencyIsoCode: transactionData.moeda,
-      // Align with GET /transactions response, which uses counterpartyName
       counterpartyName: transactionData.contraparte,
       occurredAt: new Date(transactionData.dataHora).toISOString(),
     };
