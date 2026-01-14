@@ -316,7 +316,7 @@ export const useStore = create<AppState>((set, get) => ({
       type: typeMap[transactionData.tipo] ?? 0,
       amount: transactionData.valor,
       currencyId: selectedCurrency.id,
-      description: `${transactionData.tipo} - ${transactionData.contraparte || 'Sem contraparte'}`,
+      description: transactionData.contraparte || 'Sem contraparte',
       occurredAt: new Date(transactionData.dataHora).toISOString(),
     };
 
@@ -387,7 +387,7 @@ export const useStore = create<AppState>((set, get) => ({
         tipo: typeMap[item.type] ?? 'Transferência',
         valor: item.amount,
         moeda: item.currencyIsoCode || item.currency,
-        contraparte: item.counterpartyName,
+        contraparte: item.description || item.counterpartyName || 'Sem contraparte',
         dataHora: item.occurredAt,
       };
     });
