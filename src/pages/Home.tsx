@@ -105,7 +105,7 @@ export function Home() {
               <XAxis dataKey="tipo" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="count" fill="#e60028" />
+              <Bar dataKey="count" fill="#e60028" name="Quantidade" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -145,7 +145,7 @@ export function Home() {
             <XAxis dataKey="status" />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="count" fill="#333333" />
+            <Bar dataKey="count" fill="#333333" name="Quantidade" />
           </BarChart>
         </ResponsiveContainer>
       </div>
