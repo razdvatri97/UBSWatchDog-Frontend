@@ -3,6 +3,7 @@ import { useStore } from '../store/useStore';
 import { Edit } from 'lucide-react';
 import { AlertStatusModal } from '../components/modals/AlertStatusModal';
 import { Alert } from '../types';
+import { useIsMobile } from '../components/ui/use-mobile';
 
 export function Alerts() {
   const alerts = useStore((state) => state.alerts);
@@ -13,6 +14,7 @@ export function Alerts() {
     severidade: '',
     status: '',
   });
+  const isMobile = useIsMobile();
 
   const filteredAlerts = alerts.filter((alert) => {
     const matchesSeverity = !filters.severidade || alert.severidade === filters.severidade;
@@ -57,7 +59,7 @@ export function Alerts() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8 overflow-x-hidden min-w-0">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-[#333333]">Alertas de Compliance</h1>
         <p className="text-[#666666] mt-1">Monitoramento de atividades suspeitas</p>
@@ -65,7 +67,7 @@ export function Alerts() {
 
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               Filtrar por Severidade
@@ -101,7 +103,7 @@ export function Alerts() {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 min-w-0">
         <div className="bg-red-50 border border-red-200 rounded-xl p-6">
           <p className="text-sm text-red-600 mb-1">Alertas de Alta Severidade</p>
           <p className="text-3xl font-bold text-red-700">
@@ -124,32 +126,32 @@ export function Alerts() {
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto overscroll-x-contain max-w-full">
+          <table className="min-w-max w-full table-auto whitespace-nowrap">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   ID
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Cliente
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Regra
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Descrição
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Severidade
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Status
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Data/Hora
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Ações
                 </th>
               </tr>
@@ -157,15 +159,15 @@ export function Alerts() {
             <tbody className="divide-y divide-slate-200">
               {filteredAlerts.map((alert) => (
                 <tr key={alert.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-slate-600">{alert.id}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-slate-800">
+                  <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">{alert.id}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-slate-800 whitespace-nowrap">
                     {getClientName(alert.clienteId)}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-700">{alert.regra}</td>
-                  <td className="px-6 py-4 text-sm text-slate-600 max-w-xs">
+                  <td className="px-6 py-4 text-sm text-slate-700 whitespace-nowrap">{alert.regra}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 max-w-xs truncate">
                     {alert.descricao}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getSeverityBadgeColor(
                         alert.severidade
@@ -174,7 +176,7 @@ export function Alerts() {
                       {alert.severidade}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(
                         alert.status
@@ -183,16 +185,16 @@ export function Alerts() {
                       {alert.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">
+                  <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
                     {new Date(alert.dataHora).toLocaleString('pt-BR')}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() => handleEditAlert(alert)}
                       className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors"
                     >
                       <Edit className="size-4" />
-                      <span className="text-sm">Atualizar</span>
+                      <span className="text-sm hidden sm:inline">Atualizar</span>
                     </button>
                   </td>
                 </tr>
