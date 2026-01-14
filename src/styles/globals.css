@@ -197,6 +197,62 @@ html, body {
   width: 100%;
 }
 
+.fixed-hamburger {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background-color: #e60028;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.fixed-hamburger:hover {
+  background-color: #cc0022;
+  transform: scale(1.05);
+}
+
+.fixed-hamburger:active {
+  transform: scale(0.95);
+}
+
+.sidebar-content-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.mobile-menu-button:hover {
+  background-color: #f9fafb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.mobile-menu-button:active {
+  transform: translateY(0);
+}
+
+.mobile-menu-button svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: #374151;
+}
+
 @media (max-width: 768px) {
   .table-container {
     margin-left: -1rem;
@@ -204,10 +260,5 @@ html, body {
     border-radius: 0;
     border-left: none;
     border-right: none;
-  }
-  
-  .mobile-padding {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
   }
 }

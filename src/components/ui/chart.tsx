@@ -1,8 +1,7 @@
-//chart.tsx - CORRIGIDO
 "use client";
 
 import * as React from "react";
-import * as RechartsPrimitive from "recharts"; // REMOVA @2.15.2
+import * as RechartsPrimitive from "recharts";
 
 import { cn } from "./utils";
 
@@ -179,7 +178,7 @@ function ChartTooltipContent({
     >
       {!nestLabel ? tooltipLabel : null}
       <div className="grid gap-1.5">
-        {payload.map((item, index) => { // ADICIONEI tipagem aqui
+        {payload.map((item, index) => { 
           const key = `${nameKey || item.name || item.dataKey || "value"}`;
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
           const indicatorColor = color || item.payload.fill || item.color;

@@ -1,24 +1,15 @@
 import { useStore } from '../../store/useStore';
-import { User, Menu } from 'lucide-react';
+import { User } from 'lucide-react';
 import { useIsMobile } from '../ui/use-mobile';
 
 export function Header() {
   const user = useStore((state) => state.user);
-  const toggleSidebar = useStore((state) => state.toggleSidebar);
   const isMobile = useIsMobile();
 
   return (
-    <header className="bg-white border-b border-slate-200 px-4 md:px-8 py-4">
+    <header className="bg-white border-b border-slate-200 px-8 md:px-8 py-4">
       <div className={`flex ${isMobile ? 'flex-col gap-4' : 'justify-between items-center'}`}>
         <div className={`flex ${isMobile ? 'flex-col gap-2' : 'items-center gap-4'}`}>
-          {isMobile && (
-            <button
-              onClick={toggleSidebar}
-              className="p-2 rounded-lg hover:bg-slate-100 self-start"
-            >
-              <Menu className="size-6 text-[#666666]" />
-            </button>
-          )}
           <div>
             <h2 className="text-xl font-semibold text-[#333333]">
               UBS Watchdog: Monitoramento de Transações & Compliance

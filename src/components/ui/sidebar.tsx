@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot"; // REMOVA @1.1.2
-import { VariantProps, cva } from "class-variance-authority"; // REMOVA @0.7.1
-import { PanelLeftIcon } from "lucide-react"; // REMOVA @0.487.0
+import { Slot } from "@radix-ui/react-slot"; 
+import { VariantProps, cva } from "class-variance-authority"; 
+import { PanelLeftIcon } from "lucide-react"; 
 
 import { useIsMobile } from "./use-mobile";
 import { cn } from "./utils";
@@ -90,7 +90,7 @@ function SidebarProvider({
   }, [isMobile, setOpen, setOpenMobile]);
 
   React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => { // ADICIONEI KeyboardEvent aqui
+    const handleKeyDown = (event: KeyboardEvent) => { 
       if (
         event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
         (event.metaKey || event.ctrlKey)
@@ -163,9 +163,10 @@ function Sidebar({
       <div
         data-slot="sidebar"
         className={cn(
-          "bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col",
+          "bg-sidebar text-sidebar-foreground flex flex-col",
           className,
         )}
+        style={{ height: '100vh' }}
         {...props}
       >
         {children}
@@ -221,7 +222,7 @@ function Sidebar({
       <div
         data-slot="sidebar-container"
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
+          "fixed inset-y-0 z-10 hidden h-screen w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
           side === "left"
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -230,12 +231,13 @@ function Sidebar({
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
           className,
         )}
+        style={{ height: '100vh' }}
         {...props}
       >
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
+          className="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex flex-col h-full w-full group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
         >
           {children}
         </div>
@@ -258,7 +260,7 @@ function SidebarTrigger({
       variant="ghost"
       size="icon"
       className={cn("size-7", className)}
-      onClick={(event: React.MouseEvent<HTMLButtonElement>) => { // ← LINHA CORRIGIDA
+      onClick={(event: React.MouseEvent<HTMLButtonElement>) => { 
         onClick?.(event);
         toggleSidebar();
       }}
@@ -365,7 +367,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex flex-col flex-1 min-h-0", 
         className,
       )}
       {...props}
