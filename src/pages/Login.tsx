@@ -13,32 +13,12 @@ export function Login() {
   const navigate = useNavigate();
 
 
-  const SpinnerSVG = () => (
-  <svg 
-    className="size-5" 
-    viewBox="0 0 24 24"
-    style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}
-  >
-    <circle
-      cx="12"
-      cy="12"
-      r="10"
-      stroke="currentColor"
-      strokeWidth="4"
-      fill="none"
-      strokeDasharray="60"
-      strokeDashoffset="50"
-      strokeLinecap="round"
-    />
-  </svg>
-);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-
-    void (async () => {
+    try {
       const success = await login(username, password);
       if (success) {
         await fetchAllData();
