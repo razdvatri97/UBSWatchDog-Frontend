@@ -7,7 +7,6 @@ import {
   AlertTriangle,
   FileText,
   LogOut,
-  Shield,
   X,
 } from 'lucide-react';
 import { type AppState, useStore } from '../../store/useStore';
@@ -58,7 +57,7 @@ export function Sidebar() {
       >
         <div className="p-6 border-b border-[#2a2a2a] flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <Shield className="size-8 text-[#e60028]" />
+            <img src="/UBS_Logo_branco_minimal.png" alt="UBS Watchdog Logo" style={{ height: '35px' }} />
             <div>
               <h1 className="font-bold text-lg">UBS Watchdog</h1>
               <p className="text-xs text-slate-400">Sistema de Monitoramento & Compliance.</p>
@@ -110,24 +109,20 @@ export function Sidebar() {
               </Link>
             );
           })}
-        </nav>
 
-        <div className="p-4 border-t border-[#2a2a2a]">
-          <button
-            onClick={() => {
-              logout();
-              if (isMobile && typeof setSidebarOpen === 'function') {
-                setSidebarOpen(false);
-              } else if (isMobile) {
-                console.error('setSidebarOpen is not a function:', setSidebarOpen);
-              }
-            }}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-slate-300 hover:bg-[#2a2a2a] hover:text-white transition-colors"
-          >
-            <LogOut className="size-5" />
-            <span>Sair</span>
-          </button>
-        </div>
+          <div className="mt-6 pt-4 border-t border-[#2a2a2a]">
+            <button
+              onClick={() => {
+                logout();
+                if (isMobile) setSidebarOpen(false);
+              }}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-slate-300 hover:bg-[#2a2a2a] hover:text-white transition-colors"
+            >
+              <LogOut className="size-5" />
+              <span>Sair</span>
+            </button>
+          </div>
+        </nav>
       </div>
     </>
   );
