@@ -86,20 +86,20 @@ export function Sidebar() {
               </Link>
             );
           })}
-        </nav>
 
-        <div className="p-4 border-t border-[#2a2a2a]">
-          <button
-            onClick={() => {
-              logout();
-              if (isMobile) setSidebarOpen(false);
-            }}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-slate-300 hover:bg-[#2a2a2a] hover:text-white transition-colors"
-          >
-            <LogOut className="size-5" />
-            <span>Sair</span>
-          </button>
-        </div>
+          <div className="mt-6 pt-4 border-t border-[#2a2a2a]">
+            <button
+              onClick={() => {
+                logout();
+                if (isMobile) setSidebarOpen(false);
+              }}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-slate-300 hover:bg-[#2a2a2a] hover:text-white transition-colors"
+            >
+              <LogOut className="size-5" />
+              <span>Sair</span>
+            </button>
+          </div>
+        </nav>
       </div>
     </>
   );
