@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Plus, Search } from 'lucide-react';
 import { ClientModal } from '../components/modals/ClientModal';
+import { useIsMobile } from '../components/ui/use-mobile';
 
 export function Clients() {
   const clients = useStore((state) => state.clients);
@@ -12,6 +13,7 @@ export function Clients() {
     nivelRisco: '',
     kycStatus: '',
   });
+  const isMobile = useIsMobile();
 
   const filteredClients = clients.filter((client) => {
     const matchesSearch = client.nome.toLowerCase().includes(searchTerm.toLowerCase());
@@ -51,8 +53,8 @@ export function Clients() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-4 md:p-8 overflow-x-hidden min-w-0">
+      <div className={`flex ${isMobile ? 'flex-col gap-4' : 'justify-between items-center'} mb-8`}>
         <div>
           <h1 className="text-3xl font-bold text-[#333333]">Clientes</h1>
           <p className="text-[#666666] mt-1">Gestão de clientes cadastrados no sistema</p>
@@ -119,26 +121,26 @@ export function Clients() {
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto overscroll-x-contain max-w-full">
+          <table className="min-w-max w-full table-auto whitespace-nowrap">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   ID
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Nome
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   País
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Nível de Risco
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   KYC Status
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Data Cadastro
                 </th>
               </tr>
@@ -146,12 +148,12 @@ export function Clients() {
             <tbody className="divide-y divide-slate-200">
               {filteredClients.map((client) => (
                 <tr key={client.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-slate-600">{client.id}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-slate-800">
+                  <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">{client.id}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-slate-800 whitespace-nowrap">
                     {client.nome}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">{client.pais}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">{client.pais}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getRiskBadgeColor(
                         client.nivelRisco
@@ -160,7 +162,7 @@ export function Clients() {
                       {client.nivelRisco}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getKycBadgeColor(
                         client.kycStatus
@@ -169,7 +171,7 @@ export function Clients() {
                       {client.kycStatus}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">
+                  <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
                     {new Date(client.dataCadastro).toLocaleDateString('pt-BR')}
                   </td>
                 </tr>

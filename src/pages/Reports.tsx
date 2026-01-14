@@ -128,15 +128,28 @@ export function Reports() {
       ]
     : [];
 
+  const getTypeBadgeColor = (tipo: string) => {
+    switch (tipo) {
+      case 'Depósito':
+        return 'bg-green-100 text-green-700';
+      case 'Saque':
+        return 'bg-red-100 text-red-700';
+      case 'Transferência':
+        return 'bg-blue-100 text-blue-700';
+      default:
+        return 'bg-slate-100 text-slate-700';
+    }
+  };
+
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-6 lg:p-8 overflow-x-hidden">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#333333]">Relatórios</h1>
-        <p className="text-[#666666] mt-1">Análise detalhada de clientes e transações</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-[#333333]">Relatórios</h1>
+        <p className="text-[#666666] mt-1 text-sm md:text-base">Análise detalhada de clientes e transações</p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-6 mb-6">
         <h2 className="text-lg font-semibold text-slate-800 mb-4">Gerar Relatório</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
@@ -193,7 +206,7 @@ export function Reports() {
       {report && (
         <>
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
               <p className="text-sm text-slate-500 mb-1">Cliente</p>
               <p className="text-2xl font-bold text-slate-800">{report.nomeCliente}</p>
@@ -216,7 +229,7 @@ export function Reports() {
           </div>
 
           {/* Export Buttons */}
-          <div className="flex gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <button
               onClick={exportToJSON}
               className="flex items-center gap-2 bg-slate-700 hover:bg-slate-800 text-white px-6 py-3 rounded-lg transition-colors"
@@ -234,7 +247,7 @@ export function Reports() {
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
               <h3 className="text-lg font-semibold text-slate-800 mb-4">
                 Transações por Tipo (Quantidade)
@@ -270,31 +283,31 @@ export function Reports() {
 
           {/* Transactions Table */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="p-6 border-b border-slate-200">
+            <div className="p-4 md:p-6 border-b border-slate-200">
               <h3 className="text-lg font-semibold text-slate-800">
                 Histórico de Transações ({report.transacoes.length})
               </h3>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="overflow-x-auto overscroll-x-contain max-w-full">
+              <table className="min-w-max w-full table-auto whitespace-nowrap">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
-                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap min-w-[80px]">
                       ID
                     </th>
-                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap min-w-[100px]">
                       Tipo
                     </th>
-                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap min-w-[120px]">
                       Valor
                     </th>
-                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap min-w-[80px]">
                       Moeda
                     </th>
-                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap min-w-[150px]">
                       Contraparte
                     </th>
-                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                    <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap min-w-[160px]">
                       Data/Hora
                     </th>
                   </tr>
@@ -302,19 +315,27 @@ export function Reports() {
                 <tbody className="divide-y divide-slate-200">
                   {report.transacoes.map((transaction) => (
                     <tr key={transaction.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 text-sm text-slate-600">{transaction.id}</td>
-                      <td className="px-6 py-4 text-sm text-slate-700">{transaction.tipo}</td>
-                      <td className="px-6 py-4 text-sm font-semibold text-slate-800">
+                      <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">{transaction.id}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getTypeBadgeColor(
+                            transaction.tipo
+                          )}`}
+                        >
+                          {transaction.tipo}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-semibold text-slate-800 whitespace-nowrap">
                         {transaction.valor.toLocaleString('pt-BR', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         })}
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600">{transaction.moeda}</td>
-                      <td className="px-6 py-4 text-sm text-slate-600">
+                      <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">{transaction.moeda}</td>
+                      <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap truncate max-w-[200px]">
                         {transaction.contraparte}
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600">
+                      <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
                         {new Date(transaction.dataHora).toLocaleString('pt-BR')}
                       </td>
                     </tr>
@@ -333,8 +354,8 @@ export function Reports() {
       )}
 
       {!report && (
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-12 text-center">
-          <BarChart3 className="size-16 text-slate-300 mx-auto mb-4" />
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 md:p-12 text-center">
+          <BarChart3 className="size-12 md:size-16 text-slate-300 mx-auto mb-4" />
           <p className="text-slate-500">
             Selecione um cliente e período para gerar o relatório
           </p>

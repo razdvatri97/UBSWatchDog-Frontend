@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Plus } from 'lucide-react';
 import { TransactionModal } from '../components/modals/TransactionModal';
+import { useIsMobile } from '../components/ui/use-mobile';
 
 export function Transactions() {
   const transactions = useStore((state) => state.transactions);
@@ -12,6 +13,7 @@ export function Transactions() {
     dataInicio: '',
     dataFim: '',
   });
+  const isMobile = useIsMobile();
 
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesClient = !filters.clienteId || transaction.clienteId === filters.clienteId;
@@ -42,8 +44,8 @@ export function Transactions() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-4 md:p-8 overflow-x-hidden min-w-0">
+      <div className={`flex ${isMobile ? 'flex-col gap-6' : 'justify-between items-center'} mb-8`}>
         <div>
           <h1 className="text-3xl font-bold text-[#333333]">Transações</h1>
           <p className="text-[#666666] mt-1">Histórico de transações financeiras</p>
@@ -105,30 +107,30 @@ export function Transactions() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden min-w-0">
+        <div className="overflow-x-auto overscroll-x-contain max-w-full">
+          <table className="min-w-max w-full table-auto whitespace-nowrap">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   ID
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Cliente
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Tipo
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Valor
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Moeda
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Contraparte
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Data/Hora
                 </th>
               </tr>
@@ -136,11 +138,11 @@ export function Transactions() {
             <tbody className="divide-y divide-slate-200">
               {filteredTransactions.map((transaction) => (
                 <tr key={transaction.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-slate-600">{transaction.id}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-slate-800">
+                  <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">{transaction.id}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-slate-800 whitespace-nowrap">
                     {getClientName(transaction.clienteId)}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getTypeBadgeColor(
                         transaction.tipo
@@ -149,17 +151,17 @@ export function Transactions() {
                       {transaction.tipo}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-slate-800">
+                  <td className="px-6 py-4 text-sm font-semibold text-slate-800 whitespace-nowrap">
                     {transaction.valor.toLocaleString('pt-BR', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">{transaction.moeda}</td>
-                  <td className="px-6 py-4 text-sm text-slate-600">
+                  <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">{transaction.moeda}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
                     {transaction.contraparte}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">
+                  <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
                     {new Date(transaction.dataHora).toLocaleString('pt-BR')}
                   </td>
                 </tr>
