@@ -36,7 +36,7 @@ export function Login() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="flex justify-center mb-6">
-            <img src="/img/UBS_Logo.png" alt="UBS Watchdog Logo" style={{ height: '50px' }} />
+            <img src="/assets/UBS_Logo.png" alt="UBS Watchdog Logo" style={{ height: '50px' }} />
           </div>
 
           <h1 className="text-3xl font-bold text-center text-[#333333] mb-2">UBS Watchdog</h1>

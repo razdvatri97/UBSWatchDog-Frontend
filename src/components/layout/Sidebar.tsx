@@ -57,7 +57,7 @@ export function Sidebar() {
       >
         <div className="p-6 border-b border-[#2a2a2a] flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <img src="/img/UBS_Logo_branco_minimal.png" alt="UBS Watchdog Logo" style={{ height: '35px' }} />
+            <img src="/assets/UBS_Logo_branco_minimal.png" alt="UBS Watchdog Logo" style={{ height: '35px' }} />
             <div>
               <h1 className="font-bold text-lg">UBS Watchdog</h1>
               <p className="text-xs text-slate-400">Sistema de Monitoramento & Compliance.</p>
