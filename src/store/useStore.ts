@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Client, Transaction, Alert, User } from '../types';
 
-// Base API URL from environment variable
+// Base API
 const API_BASE = "https://r3s6m368-5083.brs.devtunnels.ms/api";
 
 interface AppState {
@@ -66,28 +66,62 @@ export const fetchFromAPI = async (endpoint: string, options: RequestInit = {}) 
   }
 };
 
-export const useStore = create<AppState>((set, get) => ({
-    countries: [],
-    fetchCountries: async () => {
-      const response = await fetchFromAPI('countries') as
-        | { success?: boolean; data?: { items?: any[] } | any[] }
-        | any[]
-        | null;
+// Generic helper to fetch and merge all pages from a paginated endpoint.
+// It understands plain arrays, { data: [...] }, { data: { items, page, totalPages } }, and { items, page, totalPages }.
+const fetchAllPages = async (endpointBase: string): Promise<any[]> => {
+  const fetchPage = async (page?: number) => {
+    const endpoint = page ? `${endpointBase}?page=${page}` : endpointBase;
+    const response = (await fetchFromAPI(endpoint)) as
+      | { success?: boolean; data?: { items?: any[]; page?: number; totalPages?: number; pageSize?: number } | any[] }
+      | { items?: any[]; page?: number; totalPages?: number; pageSize?: number }
+      | any[]
+      | null;
 
-      let items: any[] = [];
+    let items: any[] = [];
+    let currentPage = page ?? 1;
+    let totalPages = 1;
 
-      if (Array.isArray(response)) {
-        items = response;
-      } else if (response && typeof response === 'object') {
-        const data = (response as any).data;
-        if (Array.isArray(data)) {
-          items = data;
-        } else if (data && Array.isArray((data as any).items)) {
-          items = (data as any).items;
-        }
+    if (Array.isArray(response)) {
+      items = response;
+    } else if (response && typeof response === 'object') {
+      const anyResponse: any = response as any;
+      const data = anyResponse.data ?? anyResponse;
+
+      if (Array.isArray(data)) {
+        items = data;
+      } else if (data && Array.isArray(data.items)) {
+        items = data.items;
+        currentPage = typeof data.page === 'number' ? data.page : currentPage;
+        totalPages = typeof data.totalPages === 'number' ? data.totalPages : totalPages;
+      } else if (Array.isArray(anyResponse.items)) {
+        items = anyResponse.items;
+        currentPage = typeof anyResponse.page === 'number' ? anyResponse.page : currentPage;
+        totalPages = typeof anyResponse.totalPages === 'number' ? anyResponse.totalPages : totalPages;
       }
+    }
 
-      const countries = items.map((item) => ({
+    return { items, currentPage, totalPages };
+  };
+
+  const firstPage = await fetchPage();
+  const allItems: any[] = [...firstPage.items];
+
+  if (firstPage.totalPages > firstPage.currentPage) {
+    for (let page = firstPage.currentPage + 1; page <= firstPage.totalPages; page += 1) {
+      const nextPage = await fetchPage(page);
+      allItems.push(...nextPage.items);
+    }
+  }
+
+  return allItems;
+};
+
+export const useStore = create<AppState>((set, get) => ({
+  countries: [],
+  fetchCountries: async () => {
+      const allItems = await fetchAllPages('countries');
+
+      const countries = allItems.map((item) => ({
         id: item.id,
         name: item.name ?? item.countryName ?? item.isoCode ?? item.code ?? '',
       })).filter((c) => c.id && c.name);
@@ -261,13 +295,9 @@ export const useStore = create<AppState>((set, get) => ({
     })),
 
   fetchClients: async () => {
-    const response = await fetchFromAPI('clients') as
-      | { success: boolean; data?: { items?: any[] } }
-      | null;
+    const allItems = await fetchAllPages('clients');
 
-    const items = response?.data?.items ?? [];
-
-    const mappedClients: Client[] = items.map((item) => {
+    const mappedClients: Client[] = allItems.map((item) => {
       const riskLevelMap: Record<number, Client['nivelRisco']> = {
         0: 'Baixo',
         1: 'Médio',
@@ -294,13 +324,9 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   fetchTransactions: async () => {
-    const response = await fetchFromAPI('transactions') as
-      | { success: boolean; data?: { items?: any[] } }
-      | null;
+    const allItems = await fetchAllPages('transactions');
 
-    const items = response?.data?.items ?? [];
-
-    const mappedTransactions: Transaction[] = items.map((item) => {
+    const mappedTransactions: Transaction[] = allItems.map((item) => {
       const typeMap: Record<number, Transaction['tipo']> = {
         0: 'Depósito',
         1: 'Saque',
@@ -322,13 +348,9 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   fetchAlerts: async () => {
-    const response = await fetchFromAPI('alerts') as
-      | { success: boolean; data?: { items?: any[] } }
-      | null;
+    const allItems = await fetchAllPages('alerts');
 
-    const items = response?.data?.items ?? [];
-
-    const mappedAlerts: Alert[] = items.map((item) => {
+    const mappedAlerts: Alert[] = allItems.map((item) => {
       const severityMap: Record<number, Alert['severidade']> = {
         0: 'Baixa',
         1: 'Média',
