@@ -1,24 +1,51 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { Lock, User } from 'lucide-react';
+import { Lock, User, LoaderCircle } from 'lucide-react';
 
 export function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const login = useStore((state) => state.login);
   const navigate = useNavigate();
+
+
+  const SpinnerSVG = () => (
+  <svg 
+    className="size-5" 
+    viewBox="0 0 24 24"
+    style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}
+  >
+    <circle
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+      fill="none"
+      strokeDasharray="60"
+      strokeDashoffset="50"
+      strokeLinecap="round"
+    />
+  </svg>
+);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
-    const success = login(username, password);
-    if (await success) {
-      navigate('/home');
-    } else {
-      setError('Credenciais inválidas. Login sem consulta ao backend: admin / admin');
+    try {
+      const success = login(username, password);
+      if (await success) {
+        navigate('/home');
+      } else {
+        setError('Credenciais inválidas. Login sem consulta ao backend: admin / admin');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -48,7 +75,8 @@ export function Login() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e60028] focus:border-transparent"
+                  disabled={isLoading}
+                  className="w-full pl-11 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e60028] focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed"
                   placeholder="Digite seu usuário"
                   required
                 />
@@ -65,7 +93,8 @@ export function Login() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e60028] focus:border-transparent"
+                  disabled={isLoading}
+                  className="w-full pl-11 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#e60028] focus:border-transparent disabled:bg-slate-100 disabled:cursor-not-allowed"
                   placeholder="Digite sua senha"
                   required
                 />
@@ -80,9 +109,22 @@ export function Login() {
 
             <button
               type="submit"
-              className="w-full bg-[#e60028] hover:bg-[#cc0022] text-white py-3 rounded-lg font-medium transition-colors"
+              disabled={isLoading}
+              className="w-full text-white py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 shadow-md"
+              style={{
+                backgroundColor: isLoading ? '#ff6b6b' : '#e60028',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                opacity: isLoading ? 0.8 : 1,
+              }}
             >
-              Entrar
+              {isLoading ? (
+                <>
+                  <LoaderCircle className="size-5 animate-spin" />
+                  <span>Conectando...</span>
+                </>
+              ) : (
+                'Entrar'
+              )}
             </button>
           </form>
 
