@@ -21,5 +21,5 @@ In one terminal, start the app and leave it running:
 `Run npm run dev`
 
 In another terminal, run Cypress:
-`npm run cy:open` (and then run login.cy.ts)
-or headless: `npm run test:e2e`.
+`npm run cy:open` (and then run login.cy.ts for example)
+or headless: `npm run test:e2e.

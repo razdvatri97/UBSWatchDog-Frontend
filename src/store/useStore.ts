@@ -4,8 +4,10 @@ import { Client, Transaction, Alert, User } from '../types';
 const API_BASE = "https://ubswatchdog.duckdns.org/api"
 
 export interface AppState {
-    countries: { id: string; name: string }[];
-    fetchCountries: () => Promise<void>;
+  countries: { id: string; name: string }[];
+  fetchCountries: () => Promise<void>;
+  currencies: { id: string; code: string; name: string }[];
+  fetchCurrencies: () => Promise<void>;
   user: User | null;
   accessToken: string | null;
   refreshToken: string | null;
@@ -127,8 +129,21 @@ export const useStore = create<AppState>((set, get) => ({
         name: item.name ?? item.countryName ?? item.isoCode ?? item.code ?? '',
       }))
       .filter((c) => c.id && c.name);
-
     set({ countries });
+  },
+  currencies: [],
+  fetchCurrencies: async () => {
+    const allItems = await fetchAllPages('currencies');
+
+    const currencies = allItems
+      .map((item) => ({
+        id: item.id,
+        code: item.isoCode ?? item.currencyIsoCode ?? item.code ?? item.symbol ?? '',
+        name: item.name ?? item.currencyName ?? item.displayName ?? '',
+      }))
+      .filter((c) => c.id && c.code);
+
+    set({ currencies });
   },
   user: null,
   accessToken: null,
@@ -155,8 +170,6 @@ export const useStore = create<AppState>((set, get) => ({
 
     const data = (await fetchFromAPI('login', {
       method: 'POST',
-      // Send both username and email (with the same value) to be compatible
-      // with backends that still expect `email` while the UI uses `username`.
       body: JSON.stringify({ username, email: username, password }),
     })) as {
       username?: string;
@@ -263,7 +276,6 @@ export const useStore = create<AppState>((set, get) => ({
       Transferência: 2,
     };
 
-    // Basic client-side validation to avoid obvious 400s
     if (!transactionData.clienteId) {
       console.error('createTransaction validation error: clienteId is required', transactionData);
       return false;
@@ -281,16 +293,30 @@ export const useStore = create<AppState>((set, get) => ({
       return false;
     }
 
+    let { currencies } = get();
+
+    if (!currencies || currencies.length === 0) {
+      await get().fetchCurrencies();
+      ({ currencies } = get());
+    }
+
+    const selectedCurrency = currencies.find((c) => c.code === transactionData.moeda);
+
+    if (!selectedCurrency) {
+      console.error(
+        'createTransaction validation error: no currencyId found for code',
+        transactionData.moeda
+      );
+      return false;
+    }
+
     const payload = {
       clientId: transactionData.clienteId,
-      // No separate counterparty entity yet; backend can adjust later if needed
       counterpartyId: transactionData.clienteId,
       type: typeMap[transactionData.tipo] ?? 0,
       amount: transactionData.valor,
-      // Align with GET /transactions response, which exposes currencyIsoCode
-      currencyIsoCode: transactionData.moeda,
-      // Align with GET /transactions response, which uses counterpartyName
-      counterpartyName: transactionData.contraparte,
+      currencyId: selectedCurrency.id,
+      description: `${transactionData.tipo} - ${transactionData.contraparte || 'Sem contraparte'}`,
       occurredAt: new Date(transactionData.dataHora).toISOString(),
     };
 
@@ -404,5 +430,6 @@ export const useStore = create<AppState>((set, get) => ({
     await get().fetchClients();
     await get().fetchTransactions();
     await get().fetchAlerts();
+    await get().fetchCurrencies();
   },
 }));
