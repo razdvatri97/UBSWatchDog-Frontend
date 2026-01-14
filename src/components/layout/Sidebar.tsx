@@ -86,9 +86,7 @@ export function Sidebar() {
               </Link>
             );
           })}
-        </nav>
 
-        <div className="p-4 border-t border-[#2a2a2a]">
           <button
             onClick={() => {
               logout();
@@ -99,7 +97,7 @@ export function Sidebar() {
             <LogOut className="size-5" />
             <span>Sair</span>
           </button>
-        </div>
+        </nav>
       </div>
     </>
   );
