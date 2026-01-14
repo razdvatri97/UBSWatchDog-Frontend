@@ -9,6 +9,7 @@ export function Login() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const login = useStore((state) => state.login);
+  const fetchAllData = useStore((state) => state.fetchAllData);
   const navigate = useNavigate();
 
 
@@ -37,9 +38,10 @@ export function Login() {
     setError('');
     setIsLoading(true);
 
-    try {
-      const success = login(username, password);
-      if (await success) {
+    void (async () => {
+      const success = await login(username, password);
+      if (success) {
+        await fetchAllData();
         navigate('/home');
       } else {
         setError('Credenciais inválidas. Login sem consulta ao backend: admin / admin');
@@ -57,18 +59,14 @@ export function Login() {
             <img src="/UBS_Logo.png" alt="UBS Watchdog Logo" style={{ height: '50px' }} />
           </div>
 
-          <h1 className="text-3xl font-bold text-center text-[#333333] mb-2">
-            UBS Watchdog
-          </h1>
+          <h1 className="text-3xl font-bold text-center text-[#333333] mb-2">UBS Watchdog</h1>
           <p className="text-center text-[#666666] mb-8">
-            Sistema de Monitoramento de Compliance
+            Sistema de Monitoramento de Transações & Compliance.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">
-                Usuário
-              </label>
+              <label className="block text-sm font-medium text-[#333333] mb-2">Usuário</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
                 <input
@@ -84,9 +82,7 @@ export function Login() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#333333] mb-2">
-                Senha
-              </label>
+              <label className="block text-sm font-medium text-[#333333] mb-2">Senha</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
                 <input
@@ -129,15 +125,11 @@ export function Login() {
           </form>
 
           <div className="mt-6 p-4 bg-[#f5f5f5] rounded-lg">
-            <p className="text-xs text-[#666666] text-center">
-              <strong>Demo:</strong> usuário: admin | senha: admin
-            </p>
+            <p className="text-xs text-[#666666] text-center">Desenvolvido por: Grupo 3</p>
           </div>
         </div>
 
-        <p className="text-center text-slate-300 text-sm mt-6">
-          © 2025 UBS Watchdog. Sistema de Compliance Bancário.
-        </p>
+        <p className="text-center text-slate-300 text-sm mt-6">© 2026 UBS Watchdog.</p>
       </div>
     </div>
   );

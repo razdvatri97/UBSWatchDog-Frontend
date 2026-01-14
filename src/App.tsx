@@ -11,17 +11,17 @@ import { Layout } from './components/layout/Layout';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const user = useStore((state) => state.user);
-  
+
   if (!user) {
     return <Navigate to="/" replace />;
   }
-  
+
   return <>{children}</>;
 }
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route

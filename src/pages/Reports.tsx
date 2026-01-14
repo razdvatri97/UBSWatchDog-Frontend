@@ -1,24 +1,37 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { FileDown, BarChart3 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { FileDown, BarChart3, Search } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 import { Report } from '../types';
 
 export function Reports() {
   const clients = useStore((state) => state.clients);
   const transactions = useStore((state) => state.transactions);
   const alerts = useStore((state) => state.alerts);
-  
+
   const [filters, setFilters] = useState({
     clienteId: '',
-    dataInicio: '',
-    dataFim: '',
   });
-  
+
   const [report, setReport] = useState<Report | null>(null);
+  const [clientSearchTerm, setClientSearchTerm] = useState('');
+
+  const selectedClient = clients.find((c) => c.id === filters.clienteId);
+  const filteredClients = clients.filter((client) =>
+    client.nome.toLowerCase().includes(clientSearchTerm.toLowerCase())
+  );
 
   const generateReport = () => {
-    if (!filters.clienteId || !filters.dataInicio || !filters.dataFim) {
+    if (!filters.clienteId) {
       alert('Por favor, preencha todos os filtros');
       return;
     }
@@ -26,25 +39,12 @@ export function Reports() {
     const client = clients.find((c) => c.id === filters.clienteId);
     if (!client) return;
 
-    const startDate = new Date(filters.dataInicio);
-    const endDate = new Date(filters.dataFim + 'T23:59:59');
-
     const clientTransactions = transactions.filter((t) => {
-      const transactionDate = new Date(t.dataHora);
-      return (
-        t.clienteId === filters.clienteId &&
-        transactionDate >= startDate &&
-        transactionDate <= endDate
-      );
+      return t.clienteId === filters.clienteId;
     });
 
     const clientAlerts = alerts.filter((a) => {
-      const alertDate = new Date(a.dataHora);
-      return (
-        a.clienteId === filters.clienteId &&
-        alertDate >= startDate &&
-        alertDate <= endDate
-      );
+      return a.clienteId === filters.clienteId;
     });
 
     const totalMovimentado = clientTransactions.reduce((sum, t) => sum + t.valor, 0);
@@ -144,8 +144,8 @@ export function Reports() {
   return (
     <div className="p-4 md:p-6 lg:p-8 overflow-x-hidden">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-[#333333]">Relatórios</h1>
-        <p className="text-[#666666] mt-1 text-sm md:text-base">Análise detalhada de clientes e transações</p>
+        <h1 className="text-3xl font-bold text-[#333333]">Relatórios</h1>
+        <p className="text-[#666666] mt-1">Análise detalhada de um cliente e suas transações</p>
       </div>
 
       {/* Filters */}
@@ -153,43 +153,36 @@ export function Reports() {
         <h2 className="text-lg font-semibold text-slate-800 mb-4">Gerar Relatório</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Selecionar Cliente
-            </label>
-            <select
-              value={filters.clienteId}
-              onChange={(e) => setFilters({ ...filters, clienteId: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Escolha um cliente</option>
-              {clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.nome}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Data Início
-            </label>
-            <input
-              type="date"
-              value={filters.dataInicio}
-              onChange={(e) => setFilters({ ...filters, dataInicio: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Data Fim</label>
-            <input
-              type="date"
-              value={filters.dataFim}
-              onChange={(e) => setFilters({ ...filters, dataFim: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Buscar cliente..."
+                value={clientSearchTerm || selectedClient?.nome || ''}
+                onChange={(e) => setClientSearchTerm(e.target.value)}
+                className="w-full pl-11 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {clientSearchTerm && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-slate-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-10">
+                  {filteredClients.length > 0 ? (
+                    filteredClients.map((client) => (
+                      <div
+                        key={client.id}
+                        onClick={() => {
+                          setFilters({ ...filters, clienteId: client.id });
+                          setClientSearchTerm('');
+                        }}
+                        className="px-4 py-2 hover:bg-slate-50 cursor-pointer"
+                      >
+                        {client.nome}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-2 text-slate-500">Nenhum cliente encontrado</div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -354,11 +347,9 @@ export function Reports() {
       )}
 
       {!report && (
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 md:p-12 text-center">
-          <BarChart3 className="size-12 md:size-16 text-slate-300 mx-auto mb-4" />
-          <p className="text-slate-500">
-            Selecione um cliente e período para gerar o relatório
-          </p>
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-12 text-center">
+          <BarChart3 className="size-16 text-slate-300 mx-auto mb-4" />
+          <p className="text-slate-500">Selecione um cliente e período para gerar o relatório</p>
         </div>
       )}
     </div>

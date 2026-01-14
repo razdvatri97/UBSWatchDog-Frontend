@@ -3,7 +3,6 @@ import { useStore } from '../store/useStore';
 import { Edit } from 'lucide-react';
 import { AlertStatusModal } from '../components/modals/AlertStatusModal';
 import { Alert } from '../types';
-import { useIsMobile } from '../components/ui/use-mobile';
 
 export function Alerts() {
   const alerts = useStore((state) => state.alerts);
@@ -14,7 +13,6 @@ export function Alerts() {
     severidade: '',
     status: '',
   });
-  const isMobile = useIsMobile();
 
   const filteredAlerts = alerts.filter((alert) => {
     const matchesSeverity = !filters.severidade || alert.severidade === filters.severidade;
@@ -130,30 +128,22 @@ export function Alerts() {
           <table className="min-w-max w-full table-auto whitespace-nowrap">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
-                  ID
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">ID</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Cliente
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
-                  Regra
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Regra</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Descrição
                 </th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
                   Severidade
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
-                  Status
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Status</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Data/Hora
                 </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
-                  Ações
-                </th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -163,11 +153,9 @@ export function Alerts() {
                   <td className="px-6 py-4 text-sm font-medium text-slate-800 whitespace-nowrap">
                     {getClientName(alert.clienteId)}
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-700 whitespace-nowrap">{alert.regra}</td>
-                  <td className="px-6 py-4 text-sm text-slate-600 max-w-xs truncate">
-                    {alert.descricao}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 text-sm text-slate-700">{alert.regra}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 max-w-xs">{alert.descricao}</td>
+                  <td className="px-6 py-4">
                     <span
                       className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getSeverityBadgeColor(
                         alert.severidade
@@ -203,9 +191,7 @@ export function Alerts() {
           </table>
 
           {filteredAlerts.length === 0 && (
-            <div className="text-center py-12 text-slate-500">
-              Nenhum alerta encontrado
-            </div>
+            <div className="text-center py-12 text-slate-500">Nenhum alerta encontrado</div>
           )}
         </div>
       </div>
