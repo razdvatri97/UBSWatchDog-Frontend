@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { Shield, Lock, User } from 'lucide-react';
+import { Lock, User } from 'lucide-react';
 
 export function Login() {
   const [username, setUsername] = useState('');
@@ -27,9 +27,7 @@ export function Login() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="flex justify-center mb-6">
-            <div className="bg-[#e60028] p-4 rounded-full">
-              <Shield className="size-12 text-white" />
-            </div>
+            <img src="/UBS_Logo.png" alt="UBS Watchdog Logo" style={{ height: '50px' }} />
           </div>
 
           <h1 className="text-3xl font-bold text-center text-[#333333] mb-2">
