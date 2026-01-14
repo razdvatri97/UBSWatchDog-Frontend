@@ -9,11 +9,14 @@ interface AppState {
   clients: Client[];
   transactions: Transaction[];
   alerts: Alert[];
+  sidebarOpen: boolean;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   addClient: (client: Omit<Client, 'id' | 'dataCadastro'>) => void;
   addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
   updateAlertStatus: (id: string, status: Alert['status']) => void;
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
 }
 
 // Mock data for demonstration purposes
@@ -192,6 +195,7 @@ export const useStore = create<AppState>((set) => ({
   clients: mockClients,
   transactions: mockTransactions,
   alerts: mockAlerts,
+  sidebarOpen: false,
 
   login: async (username: string, password: string) => {
     // Mock authentication for demonstration
@@ -332,4 +336,6 @@ export const useStore = create<AppState>((set) => ({
         alert.id === id ? { ...alert, status } : alert
       ),
     })),
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 }));
