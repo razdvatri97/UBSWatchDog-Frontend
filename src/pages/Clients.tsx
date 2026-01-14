@@ -125,16 +125,10 @@ export function Clients() {
           <table className="min-w-max w-full table-auto whitespace-nowrap">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
-                  ID
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
-                  Nome
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
-                  País
-                </th>
-                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">ID</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">Nome</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">País</th>
+                <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700">
                   Nível de Risco
                 </th>
                 <th className="text-left px-6 py-4 text-sm font-semibold text-slate-700 whitespace-nowrap">
@@ -148,12 +142,10 @@ export function Clients() {
             <tbody className="divide-y divide-slate-200">
               {filteredClients.map((client) => (
                 <tr key={client.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">{client.id}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-slate-800 whitespace-nowrap">
-                    {client.nome}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">{client.pais}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 text-sm text-slate-600">{client.id}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-slate-800">{client.nome}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600">{client.pais}</td>
+                  <td className="px-6 py-4">
                     <span
                       className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getRiskBadgeColor(
                         client.nivelRisco
@@ -180,9 +172,7 @@ export function Clients() {
           </table>
 
           {filteredClients.length === 0 && (
-            <div className="text-center py-12 text-slate-500">
-              Nenhum cliente encontrado
-            </div>
+            <div className="text-center py-12 text-slate-500">Nenhum cliente encontrado</div>
           )}
         </div>
       </div>

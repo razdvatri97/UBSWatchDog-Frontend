@@ -60,8 +60,8 @@ export function AlertStatusModal({ isOpen, onClose, alert }: AlertStatusModalPro
                   alert.severidade === 'Alta'
                     ? 'text-red-600'
                     : alert.severidade === 'Média'
-                    ? 'text-amber-600'
-                    : 'text-green-600'
+                      ? 'text-amber-600'
+                      : 'text-green-600'
                 }`}
               >
                 {alert.severidade}
@@ -74,9 +74,7 @@ export function AlertStatusModal({ isOpen, onClose, alert }: AlertStatusModalPro
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Novo Status
-              </label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Novo Status</label>
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as Alert['status'])}

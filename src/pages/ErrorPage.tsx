@@ -11,7 +11,7 @@ export function ErrorPage() {
 
   if (isRouteErrorResponse(error)) {
     errorStatus = error.status;
-    
+
     switch (error.status) {
       case 401:
         errorMessage = 'Não Autorizado';

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Search } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 
 interface TransactionModalProps {
@@ -9,7 +9,10 @@ interface TransactionModalProps {
 
 export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
   const clients = useStore((state) => state.clients);
-  const addTransaction = useStore((state) => state.addTransaction);
+  const createTransaction = useStore((state) => state.createTransaction);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     clienteId: '',
     tipo: 'Depósito' as 'Depósito' | 'Saque' | 'Transferência',
@@ -19,21 +22,50 @@ export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
     dataHora: new Date().toISOString().slice(0, 16),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const selectedClient = clients.find((c) => c.id === formData.clienteId);
+  const filteredClients = clients.filter((client) =>
+    client.nome.toLowerCase().includes(clientSearchTerm.toLowerCase())
+  );
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    addTransaction({
+    setIsSubmitting(true);
+    setError('');
+
+    if (!formData.clienteId) {
+      setError('Selecione um cliente da lista antes de registrar a transação.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    const valorNumber = parseFloat(formData.valor);
+    if (Number.isNaN(valorNumber) || valorNumber <= 0) {
+      setError('Informe um valor numérico maior que zero.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    const success = await createTransaction({
       ...formData,
-      valor: parseFloat(formData.valor),
+      valor: valorNumber,
     });
-    setFormData({
-      clienteId: '',
-      tipo: 'Depósito',
-      valor: '',
-      moeda: 'BRL',
-      contraparte: '',
-      dataHora: new Date().toISOString().slice(0, 16),
-    });
-    onClose();
+
+    setIsSubmitting(false);
+
+    if (success) {
+      setFormData({
+        clienteId: '',
+        tipo: 'Depósito',
+        valor: '',
+        moeda: 'BRL',
+        contraparte: '',
+        dataHora: new Date().toISOString().slice(0, 16),
+      });
+      setClientSearchTerm('');
+      onClose();
+    } else {
+      setError('Erro ao registrar transação. Tente novamente.');
+    }
   };
 
   if (!isOpen) return null;
@@ -54,19 +86,37 @@ export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Cliente</label>
-            <select
-              value={formData.clienteId}
-              onChange={(e) => setFormData({ ...formData, clienteId: e.target.value })}
-              className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            >
-              <option value="">Selecione um cliente</option>
-              {clients.map((client) => (
-                <option key={client.id} value={client.id}>
-                  {client.nome} ({client.pais})
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Buscar cliente..."
+                value={clientSearchTerm || selectedClient?.nome || ''}
+                onChange={(e) => setClientSearchTerm(e.target.value)}
+                className="w-full pl-11 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              {clientSearchTerm && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-slate-300 rounded-lg shadow-lg max-h-60 overflow-y-auto z-10">
+                  {filteredClients.length > 0 ? (
+                    filteredClients.map((client) => (
+                      <div
+                        key={client.id}
+                        onClick={() => {
+                          setFormData({ ...formData, clienteId: client.id });
+                          setClientSearchTerm('');
+                        }}
+                        className="px-4 py-2 hover:bg-slate-50 cursor-pointer"
+                      >
+                        {client.nome} ({client.pais})
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-2 text-slate-500">Nenhum cliente encontrado</div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
@@ -119,9 +169,7 @@ export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Contraparte
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Contraparte</label>
             <input
               type="text"
               value={formData.contraparte}
@@ -133,9 +181,7 @@ export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Data e Hora
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Data e Hora</label>
             <input
               type="datetime-local"
               value={formData.dataHora}
@@ -145,19 +191,27 @@ export function TransactionModal({ isOpen, onClose }: TransactionModalProps) {
             />
           </div>
 
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
           <div className="flex gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-[#e60028] text-white rounded-lg hover:bg-[#cc0022] transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2 bg-[#e60028] text-white rounded-lg hover:bg-[#cc0022] transition-colors disabled:opacity-50"
             >
-              Registrar
+              {isSubmitting ? 'Registrando...' : 'Registrar'}
             </button>
           </div>
         </form>
